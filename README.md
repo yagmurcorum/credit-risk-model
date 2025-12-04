@@ -352,6 +352,18 @@ Arayüz, kurumsal bir kredi risk platformu görünümüyle tasarlanmıştır:
   - Düşük / Yüksek risk tanımı  
   - Model performans metriklerinin özeti (ROC-AUC, Precision, Recall, F1, optimal eşik)  
   - Sistem durumu (Model / API aktif mi?)
+ 
+ ## Canlı Demo (Streamlit)
+
+ - Modelin Streamlit ile yayınlanmış versiyonuna aşağıdaki linkten ulaşabilirsiniz:
+
+👉 [Kredi Risk Platformu – Canlı Demo](https://kredi-risk-platformu.streamlit.app/)
+
+Bu arayüz üzerinden:
+- Örnek veya kendi kredi başvuru portföyünüzü CSV olarak yükleyebilir,
+- Her bir müşteri için default olasılığını ve risk segmentini görebilir,
+- Risk dağılımı histogramı, segmentasyon donut grafiği ve yaş–gelir balon grafiği ile portföy risk profilini inceleyebilirsiniz.
+
 
 **Üst sekmeler:**
 

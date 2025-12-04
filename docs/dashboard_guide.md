@@ -5,7 +5,7 @@ Bu doküman, **Kredi Risk Değerlendirme Platformu** arayüzünün genel yapıs�
 
 ## 1. Ana Sayfa ve Genel Yerleşim
 
-![Dashboard ana görünüm](cases/dashboard1.png)
+![Dashboard ana görünüm](cases/dashbboard1.png)
 
 Yukarıdaki ekran görüntüsü, platformun açılış görünümünü göstermektedir.
 

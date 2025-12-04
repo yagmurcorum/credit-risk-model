@@ -1,0 +1,104 @@
+# =========================
+# PYTHON / BUILD / CACHE
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# =========================
+# VIRTUAL ENVIRONMENTS
+# =========================
+.venv/
+venv/
+ENV/
+env/
+
+# =========================
+# JUPYTER NOTEBOOK
+# =========================
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Notebook içinden üretilen yardımcı CSV çıktıları
+notebooks/*.csv
+
+# =========================
+# IDE / EDITÖR DOSYALARI
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# =========================
+# MODEL DOSYALARI
+# =========================
+# Eğer model .pkl dosyalarını repoya koymak istemezsen şu satırı aç:
+# models/*.pkl
+
+# =========================
+# DATA DOSYALARI
+# =========================
+# Ham / büyük Kaggle veri dosyaları (repoda tutmuyoruz)
+data/cs-training.csv
+data/cs-test.csv
+data/cs-training-clean.csv
+
+# Script / tahmin sonucu gibi tekrar üretilebilir çıktılar
+data/training_prepared_from_script.csv
+data/training_predictions.csv
+
+# NOT:
+# Aşağıdakiler repoda KALACAK (ignore ETMİYORUZ):
+#   data/training_prepared.csv
+#   data/test_sample_raw.csv
+#   data/test_portfolio_low_risk.csv
+#   data/test_portfolio_mixed.csv
+#   data/test_portfolio_stressed.csv
+#   data/Data Dictionary.xls
+
+# =========================
+# LOG / GEÇİCİ DOSYALAR
+# =========================
+*.log
+*.tmp
+*.temp
+*.bak
+
+# =========================
+# ENV / GİZLİ BİLGİ
+# =========================
+.env
+.env.local
+
+# =========================
+# STREAMLIT
+# =========================
+.streamlit/
+
+# =========================
+# TEST / COVERAGE ÇIKTILARI
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/

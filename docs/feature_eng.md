@@ -1,0 +1,267 @@
+# Feature Engineering Summary
+
+Bu doküman, `03_feature_engineering.ipynb` notebook’unda yapılan feature engineering
+adımlarının özetini içerir.
+
+## Genel Yaklaşım
+
+Feature engineering aşamasında:
+
+- Temizlenmiş veri (`cs-training-clean.csv`) üzerinde çalışıldı.
+- Tüm dönüşümler veri setinin *tamamına* uygulandı.
+- Sonuçta oluşan final feature seti `training_prepared.csv` olarak kaydedildi.
+
+> **Not:** Feature engineering adımları (median imputasyon, quantile tabanlı eşikler,
+> binning vb.) tüm veri seti üzerinde hesaplandı; bu istatistikler yalnızca
+> train set’te fit edilip validation’a uygulanmadı. Bu durum teorik olarak
+> hafif bir *data leakage* kaynağıdır. Ancak bu adımlarda hedef değişken
+> (`SeriousDlqin2yrs`) hiç kullanılmadığı ve veri seti büyük olduğu için
+> pratik etkisinin sınırlı olduğu değerlendirilmektedir. Bir sonraki iterasyonda
+> bu istatistiklerin `sklearn` pipeline içine alınarak yalnızca train set üzerinde
+> fit edilmesi ve validation/test setlerine yalnızca transform uygulanması planlanabilir.
+
+
+## 1. Delinquency (Gecikme) Feature’ları
+
+**Orijinal kolonlar:**
+
+- `NumberOfTime30-59DaysPastDueNotWorse`
+- `NumberOfTime60-89DaysPastDueNotWorse`
+- `NumberOfTimes90DaysLate`
+
+**Türetilen feature’lar:**
+
+### TotalDelinquency
+
+- Üç gecikme sayısının toplamı.
+- **Etkisi:** Model için güçlü sinyal taşıyor; ancak VIF analizi sonrası
+  `DelinquencySeverityScore` ile çok yüksek korelasyon sebebiyle final setten çıkarıldı.
+
+### EverDelinquent
+
+- Herhangi bir tipte en az bir gecikmesi olan müşteri (0/1).
+- **Default oranı farkı:** Gecikme yaşamayanlar %2.7 civarı, yaşayanlar %10.4+.
+- **Etkisi:** Model için kritik ayrıştırıcı; final sette tutuldu.
+
+### Ever90DaysLate
+
+- 90+ gün gecikme yaşamış müşteri bayrağı (0/1).
+- **Default oranı:** 90+ gecikme yaşayanlarda %45–50 aralığında.
+- **Etkisi:** En güçlü risk göstergelerinden biri; final sette tutuldu.
+
+### MultipleDelinquencyFlag
+
+- Toplam gecikme sayısı ≥ 2 ise 1, aksi halde 0.
+- **Default oranı:** Çoklu gecikme yaşayanlarda %24–48 bandında.
+- **Etkisi:** Yüksek riskli gecikme geçmişini işaretleyen güçlü bir bayrak; final sette tutuldu.
+
+### DelinquencySeverityScore
+
+- Ağırlıklı gecikme skoru:  
+  `1 × (30–59 gün)` + `2 × (60–89 gün)` + `3 × (90+ gün)` gecikmeler.
+- **Etkisi:** Ham delinquency kolonlarının yerine geçen özet bir skor olarak kullanıldı
+  ve final sette tutuldu.
+
+
+## 2. Risk Flag’leri (Binary Indicators)
+
+Bu başlık altında modelde 0/1 bayrak gibi çalışan temel risk göstergeleri yer alır.
+
+### HighUtilizationFlag
+
+- Tanım: `RevolvingUtilizationOfUnsecuredLines > 1.0` (kredi kartı limit aşımı).
+- **Dağılım:** Müşterilerin yaklaşık %2.2’si limit aşımı yapıyor.
+- **Etkisi:** Çok yüksek risk segmentini işaretliyor; final sette tutuldu.
+
+### HighDebtFlag
+
+- Tanım: `DebtToIncomeRatio > 0.4`.
+- **Dağılım:** Müşterilerin yaklaşık %7.2’si yüksek borç/gelir oranına sahip.
+- **Etkisi:** Borç yükü aşırı olan segmenti ayırıyor; final sette tutuldu.
+
+### MultipleDelinquencyFlag
+
+- Tanım: Toplam gecikme sayısı ≥ 2.
+- **Etkisi:** Aynı zamanda delinquency tarafında özet feature görevi görüyor;
+  birden fazla gecikmesi olan müşterileri işaretlediği için final sette tutuldu.
+
+> Not: `EverDelinquent` ve `Ever90DaysLate` de aslında flag’tir, ancak delinquency
+> hikâyesiyle birlikte yorumlandıkları için Delinquency bölümünde bırakılmıştır.
+
+
+## 3. Log Dönüşümleri
+
+**Dönüştürülen değişkenler:**
+
+- `RevolvingUtilizationOfUnsecuredLines_log1p`
+- `DebtRatio_log1p`
+- `MonthlyIncome_log1p`
+
+**Neden `log1p`?**
+
+- Sağa çarpık dağılımları daha simetrik hale getirmek.
+- Uç değerlerin model üzerindeki etkisini yumuşatmak.
+- Özellikle ağaç tabanlı olmayan modeller için daha uygun ölçek sağlamak.
+
+**Sonuç:**
+
+- `MonthlyIncome_log1p`, orijinal `MonthlyIncome` ile çok yüksek korelasyon
+  ve VIF nedeniyle final setten çıkarıldı.
+- Diğer log dönüşümleri final sette tutuldu.
+
+
+## 4. Binning (Segmentasyon)
+
+### AgeBin
+
+- Segmentler: **18–30**, **31–45**, **46–60**, **60+**.
+- **Default oranları:** 18–30 grubunda ~%12, 60+ grubunda ~%3.
+- **Etkisi:** Yaşın non-lineer etkisini yakalıyor; final sette tutuldu.
+
+### IncomeBin
+
+- Segmentler: **0–3k**, **3–6k**, **6–10k**, **10k+**.
+- **Default oranları:** 0–3k grubunda ~%9.1, 10k+ grubunda ~%4.3.
+- **Etkisi:** Gelir segmentasyonu güçlü sinyal üretiyor; final sette tutuldu.
+
+### UtilizationBin
+
+- Segmentler: **0–30%**, **30–70%**, **70–100%**, **100%+**.
+- **Default oranları:** 0–30% grubunda ~%2.2, 100%+ grubunda ~%37.2.
+- **Etkisi:** Kredi kullanım oranının seviyesini yakalayan önemli bir segmentasyon;
+  final sette tutuldu.
+
+### DelinqBin
+
+- Segmentler: **0**, **1**, **2–3**, **4+** toplam gecikme.
+- **Default oranları:** 0 gecikme için ~%2.7, 4+ gecikme için ~%51.6.
+- **Etkisi:** Gecikme yoğunluğunu sınıflandırdığı için güçlü risk sinyali veriyor;
+  final sette tutuldu.
+
+
+## 5. Interaction Feature’ları
+
+### Utilization_x_DebtRatio
+
+- Tanım: `RevolvingUtilizationOfUnsecuredLines × DebtRatio`.
+- **Etkisi:** İki önemli risk faktörünün birleşimini temsil ediyor; final sette tutuldu.
+
+### Income_x_Age
+
+- Tanım: `MonthlyIncome × age`.
+- **Etkisi:** VIF analizi sonrası orijinal `MonthlyIncome` ile çok yüksek korelasyon
+  nedeniyle final setten çıkarıldı.
+
+### Delinq_x_Utilization
+
+- Tanım: `TotalDelinquency × RevolvingUtilizationOfUnsecuredLines`.
+- **Etkisi:** Geçmiş gecikme + mevcut limit kullanımı kombinasyonunu yakalıyor;
+  güçlü sinyal ürettiği için final sette tutuldu.
+
+### OpenLines_x_RealEstate
+
+- Tanım: `NumberOfOpenCreditLinesAndLoans × NumberRealEstateLoansOrLines`.
+- **Etkisi:** Çoklu kredi yükünü temsil ediyor; final sette tutuldu.
+
+### HighUtil_x_DebtRatio
+
+- Tanım: `HighUtilizationFlag × DebtRatio`.
+- **Etkisi:** Limit aşımı yapan ve aynı zamanda yüksek borç oranına sahip
+  müşterileri işaretliyor; final sette tutuldu.
+
+
+## 6. Domain-Driven Feature’lar
+
+### EffectiveDebtLoad
+
+- Tanım: `DebtRatio × MonthlyIncome` → gelire göre **parasal borç yükü**.
+- **Etkisi:** `DebtRatio` değişkeninin daha yoruma açık, parasal karşılığı olan
+  versiyonu olduğu için `DebtRatio` yerine tutuldu; final sette kaldı.
+
+### CreditLineDensity
+
+- Tanım: `NumberOfOpenCreditLinesAndLoans / age`.
+- **Etkisi:** VIF analizi sonrası yüksek VIF + zayıf hedef korelasyonu nedeniyle
+  final setten çıkarıldı.
+
+### RealEstateExposure
+
+- Tanım: `NumberRealEstateLoansOrLines × DebtRatio`.
+- **Etkisi:** Gayrimenkul kredileri üzerinden borçlanma riskini yansıtıyor;
+  final sette tutuldu.
+
+### FinancialStressIndex
+
+- Tanım: `log1p(DebtRatio × RevolvingUtilizationOfUnsecuredLines)`.
+- **Etkisi:** Borç oranı ve kredi kullanımını tek bir ölçekte birleştirerek
+  genel finansal stresi temsil ediyor; final sette tutuldu.
+
+
+## Feature Selection Süreci
+
+### Korelasyon Analizi
+
+- Hedef değişkenle en güçlü korelasyon, delinquency türevlerinde gözlendi
+  (`Ever90DaysLate`, `DelinquencySeverityScore`, vb.).
+- Yüksek feature–feature korelasyonu (> 0.9) tespit edilen başlıca çiftler:
+  - `DebtRatio` ↔ `EffectiveDebtLoad`
+  - `MonthlyIncome` ↔ `Income_x_Age`
+  - Ham delinquency kolonları ↔ `TotalDelinquency` / `DelinquencySeverityScore`
+
+### VIF Analizi
+
+- **Sonsuz VIF:** Ham delinquency kolonları 
+  (`NumberOfTime30-59DaysPastDueNotWorse`,
+  `NumberOfTime60-89DaysPastDueNotWorse`,
+  `NumberOfTimes90DaysLate`, `TotalDelinquency`,
+  `DelinquencySeverityScore`) arasında tam ilişki olduğunu gösterdi.
+- **Çok yüksek VIF (100+):** `DebtRatio`, `EffectiveDebtLoad`.
+- **Yüksek VIF (20–50):** `Income_x_Age`, `MonthlyIncome_log1p`, `CreditLineDensity`
+  gibi türev / dönüşmüş kolonlarda görüldü.
+
+### Final Drop Listesi
+
+Aşağıdaki feature’lar, korelasyon ve VIF analizi ile domain yorumu birleştirilerek **final setten çıkarılmıştır:**
+
+1. Ham delinquency kolonları  
+   (`NumberOfTime30-59DaysPastDueNotWorse`,  
+   `NumberOfTime60-89DaysPastDueNotWorse`,  
+   `NumberOfTimes90DaysLate`,  
+   `TotalDelinquency`) — yerine `DelinquencySeverityScore` ve flag’ler tutuldu.
+2. `DebtRatio` — yerine `EffectiveDebtLoad` tutuldu.
+3. `Income_x_Age` — `MonthlyIncome` ile yüksek korelasyon.
+4. `MonthlyIncome_log1p` — `MonthlyIncome` ile yüksek korelasyon.
+5. `CreditLineDensity` — yüksek VIF + görece zayıf sinyal.
+
+
+## Final Feature Seti
+
+`training_prepared.csv` dosyasındaki nihai yapı:
+
+- **Toplam kolon sayısı:** 27  
+- **Hedef hariç feature sayısı:** 26  
+  - **Sayısal feature sayısı:** 22  
+  - **Kategorik feature sayısı (bin kolonları):** 4  
+    (`AgeBin`, `IncomeBin`, `UtilizationBin`, `DelinqBin`)  
+- **Hedef değişken:** `SeriousDlqin2yrs`
+
+Not: Baseline (Logistic Regression & Random Forest) ve XGBoost
+denemelerinde sadece sayısal kolonlar kullanılmıştır.
+Bin kolonları (`AgeBin`, `IncomeBin`, `UtilizationBin`, `DelinqBin`)
+analiz ve ileride uygulanabilecek farklı modelleme stratejileri için
+dosyada tutulmuştur.
+
+
+## Model Performansına Etkisi
+
+Modelleme notebook’unda yapılan deneyler üzerinden:
+
+- **Basit baseline modeller**  
+  (sadece sayısal kolonlar, bin’ler hariç) için ROC–AUC: **~0.85–0.86**
+- **Feature engineering sonrası XGBoost (full feature set)**  
+  ROC–AUC: **0.8685 → 0.8699** (hyperparameter optimizasyonu sonrası)
+- Kategorik bin’ler, interaction terimleri ve domain-driven feature’lar sayesinde model
+  non-lineer ilişkileri daha iyi yakalayabildi.
+- Delinquency feature’ları (`Ever90DaysLate`, `DelinquencySeverityScore`,
+  `MultipleDelinquencyFlag`, `DelinqBin` vb.) SHAP analiziyle de doğrulandığı üzere
+  en güçlü risk sinyalini üreten grup oldu.

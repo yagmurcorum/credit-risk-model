@@ -75,7 +75,7 @@ Model canlıya alındıktan sonra izlenecek metrikler ve alarm kuralları.
 *Onay/Red Oranları:*
 - Hedef approval rate: %85–95 aralığı
 - Decline rate: %5–15 aralığı
-- *Alarm:* Approval rate < %80 veya > %98 (iş hacmi / risk iştahı ile uyumsuzluk olabilir)
+- *Alarm:* Approval rate < %80 veya > %98 (iş hacmi / risk seviyesi ile uyumsuzluk olabilir)
 
 *Bad Rate in Approved:*
 - Hedef: %3–5 aralığı

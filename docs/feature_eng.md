@@ -11,15 +11,14 @@ Feature engineering aşamasında:
 - Tüm dönüşümler veri setinin *tamamına* uygulandı.
 - Sonuçta oluşan final feature seti `training_prepared.csv` olarak kaydedildi.
 
-> **Not:** Feature engineering adımları (median imputasyon, quantile tabanlı eşikler,
-> binning vb.) tüm veri seti üzerinde hesaplandı; bu istatistikler yalnızca
-> train set’te fit edilip validation’a uygulanmadı. Bu durum teorik olarak
-> hafif bir *data leakage* kaynağıdır. Ancak bu adımlarda hedef değişken
-> (`SeriousDlqin2yrs`) hiç kullanılmadığı ve veri seti büyük olduğu için
-> pratik etkisinin sınırlı olduğu değerlendirilmektedir. Bir sonraki iterasyonda
-> bu istatistiklerin `sklearn` pipeline içine alınarak yalnızca train set üzerinde
-> fit edilmesi ve validation/test setlerine yalnızca transform uygulanması planlanabilir.
-
+> **Not:** Bu projede median, quantile ve bin sınırları gibi istatistikler,
+> train/validation ayrımı yapılmadan, pratik sebeplerle **tüm veri üzerinde**
+> hesaplanmıştır. Bu, teorik olarak küçük bir data leakage anlamına gelir.
+> Ancak bu hesaplamalarda hedef değişken (`SeriousDlqin2yrs`) hiç
+> kullanılmadığı ve veri seti büyük olduğu için pratik etkisinin düşük
+> olduğu düşünülmektedir. İleriki iterasyonlarda bu istatistiklerin
+> yalnızca train set üzerinde fit edilmesi ve validation/test setlerine
+> aynı parametrelerin uygulanması planlanmaktadır.
 
 ## 1. Delinquency (Gecikme) Feature’ları
 

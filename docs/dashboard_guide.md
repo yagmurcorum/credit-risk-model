@@ -87,7 +87,7 @@ Dashboard’un davranışını daha iyi göstermek için, aynı modeli üç fark
 3. **Stressed Portföy (`data/test_portfolio_stressed.csv`)**  
    – Çoğunlukla yüksek riskli başvurulardan oluşan, stres senaryosu portföyü.
 
-> Bu üç portföy, projedeki `scripts/generate_test_portfolios.py` betiği kullanılarak  
+> Bu üç portföy, projedeki `tests/generate_test_portfolios.py` kullanılarak  
 > eğitim verisi üzerinden **modelin ürettiği risk skorlarına göre otomatik** oluşturulmuştur.  
 > Böylece, elle seçilmemiş ama gerçekçi dağılımlara sahip test senaryoları elde edilir.
 

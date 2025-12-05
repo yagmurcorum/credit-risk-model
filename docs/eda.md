@@ -4,12 +4,13 @@ Bu doküman `01_eda.ipynb` notebook'unun kısa özeti ve önemli bulguları içe
 
 ## Veri Seti Bilgileri
 
-- **Kaynak:** `data/cs-training.csv`
-- **Satır sayısı:** 150,000
-- **Sütun sayısı:** 12 (ham)
-- **Hedef değişken:** `SeriousDlqin2yrs`  
-  - `0` → Önümüzdeki 2 yıl içinde ciddi finansal gecikme (serious delinquency) yok  
-  - `1` → Önümüzdeki 2 yıl içinde en az bir kez ciddi finansal gecikme var  
+**- Kaynak:** data/cs-training.csv
+**- Satır sayısı:** ~150.000
+**- Sütun sayısı:** 12 (ham: 1 ID + 1 hedef + 10 feature)
+**- Hedef değişken:** SeriousDlqin2yrs
+**- 0** → Önümüzdeki 2 yıl içinde ciddi finansal gecikme yok
+**- 1** → Önümüzdeki 2 yıl içinde en az bir kez ciddi finansal gecikme var
+
 
 ## Veri Yapısı
 
@@ -35,10 +36,8 @@ Bu doküman `01_eda.ipynb` notebook'unun kısa özeti ve önemli bulguları içe
 
 **Strateji:**
 - `MonthlyIncome` eksikliği hem teknik hem davranışsal sinyal barındırıyor.
-- Eksik değer doldurma işlemi **EDA aşamasında yapılmamış**, 
-  **Data Cleaning** aşamasına bırakılmıştır.
-- Data Cleaning adımında `MonthlyIncome` ve `NumberOfDependents` için 
-  **median imputation** uygulanır (eksikler eğitim seti median’ı ile doldurulur).
+- **Data Cleaning** adımında MonthlyIncome ve NumberOfDependents için median imputation uygulanır 
+  (eksikler ilgili veri seti üzerindeki median değerle doldurulur).
 - İlk versiyonda ek bir missing flag üretilmemiştir; 
   ilerleyen iterasyonlarda `MonthlyIncomeMissingFlag` gibi ek bir feature
   oluşturmak, bu davranışsal sinyali modele taşımak için planlanan 
@@ -69,8 +68,7 @@ Bu doküman `01_eda.ipynb` notebook'unun kısa özeti ve önemli bulguları içe
 
 **MonthlyIncome:**  
 - Yaklaşık %20 eksik değer var. Gelirlerin ana kitlesi 2k–10k bandında; bunun dışında 1M+ seviyelerinde birkaç uç değer bulunuyor.  
-- FE tarafında median ile doldurma (imputation), log dönüşümü ve çok yüksek gelirlerde winsorization kullanılacak.
-
+- Eksik değerler Data Cleaning aşamasında median ile doldurulur; FE tarafında ise `MonthlyIncome_log1p` feature’ı ile yüksek gelirlerin etkisi yumuşatılır.
 
 ### Delinquency Değişkenleri
 

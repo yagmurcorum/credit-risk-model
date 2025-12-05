@@ -455,7 +455,7 @@ gibi edge case senaryolarını test eder.
 
 Aşağıdaki yapı, repodaki son düzeni özetler:
 
-    credit-risk-model/
+credit-risk-model/
 ├── app/
 │   ├── api.py                     # FastAPI – REST API (health + /predict)
 │   └── streamlit_app.py           # Streamlit UI (dashboard + batch scoring)
@@ -523,7 +523,6 @@ Aşağıdaki yapı, repodaki son düzeni özetler:
 ├── Makefile
 ├── requirements.txt
 └── README.md
-
 
 
 ## Çalıştırma Adımları (Özet)

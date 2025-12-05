@@ -10,7 +10,7 @@ FastAPI tabanlı REST API:
     uvicorn app.api:app --reload
 
 Not:
-- Tahmin için src.predict.predict_from_df fonksiyonu kullanılır.
+- Tahmin için src.inference.predict_from_raw fonksiyonu kullanılır.
 - Input formatı (örnek):
     {
         "records": [

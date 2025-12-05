@@ -93,7 +93,7 @@ Detaylı segmentasyon tablosu:
 - 1 başvuru **Orta** risk kategorisine yakın.
 - **Yüksek** ve **Çok yüksek** risk segmentlerinde hiç başvuru yok.
 
-Bu tablo, “bu portföyü bankanın risk iştahı açısından nerede konumlandırıyoruz?” sorusuna doğrudan cevap verir.
+Bu tablo, “bu portföyü bankanın hedeflenen risk seviyesi açısından nerede konumlandırıyoruz?” sorusuna doğrudan cevap verir.
 
 
 ## 8. İnteraktif Başvuru Gezgini

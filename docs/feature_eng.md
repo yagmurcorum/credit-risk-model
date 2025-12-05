@@ -233,7 +233,6 @@ Aşağıdaki feature’lar, korelasyon ve VIF analizi ile domain yorumu birleşt
 4. `MonthlyIncome_log1p` — `MonthlyIncome` ile yüksek korelasyon.
 5. `CreditLineDensity` — yüksek VIF + görece zayıf sinyal.
 
-
 ## Final Feature Seti
 
 `training_prepared.csv` dosyasındaki nihai yapı:
@@ -245,12 +244,13 @@ Aşağıdaki feature’lar, korelasyon ve VIF analizi ile domain yorumu birleşt
     (`AgeBin`, `IncomeBin`, `UtilizationBin`, `DelinqBin`)  
 - **Hedef değişken:** `SeriousDlqin2yrs`
 
-Not: Baseline (Logistic Regression & Random Forest) ve XGBoost
-denemelerinde sadece sayısal kolonlar kullanılmıştır.
-Bin kolonları (`AgeBin`, `IncomeBin`, `UtilizationBin`, `DelinqBin`)
-analiz ve ileride uygulanabilecek farklı modelleme stratejileri için
-dosyada tutulmuştur.
-
+> Not: Baseline (Logistic Regression & Random Forest) modellerinde
+> **yalnızca 22 sayısal feature** kullanılmıştır.  
+> XGBoost tarafında ise **22 sayısal + 4 bin feature**
+> (`AgeBin`, `IncomeBin`, `UtilizationBin`, `DelinqBin`)
+> OneHotEncoder ile encode edilerek **full feature set** kullanılmıştır.  
+> Bin kolonları ayrıca analiz ve ileride uygulanabilecek farklı modelleme
+> stratejileri için de dosyada tutulmuştur.
 
 ## Model Performansına Etkisi
 

@@ -24,7 +24,8 @@ SeriousDlqin2yrs
 *Kaynak:* Give Me Some Credit (Kaggle Competition)
 
 - *Satır sayısı:* ~150,000
-- *Feature sayısı:* 11 (ham) → 27 (feature engineering sonrası)
+- *Feature sayısı:* 11 ham açıklayıcı değişken (+ hedef ile toplam 12 kolon) → 27 kolon  
+  (feature engineering sonrası, hedef dahil)
 - *Class imbalance:* ~%7 default, ~%93 non-default
 - *Format:* Tabular (CSV)
 

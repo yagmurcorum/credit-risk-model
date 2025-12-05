@@ -18,7 +18,7 @@ Bu test dosyası, `tests/generate_test_portfolios.py` ile otomatik olarak üreti
 
 ## 2. İşleme Özeti ve İlk Risk Dağılımı
 
-![Low – işleme özeti ve histogram](low2.png)
+![Low – işleme özeti ve histogram](low2.png.png)
 
 - Tüm başvurular başarıyla işlenmiştir.
 - Karar eşiği (threshold) **0.81** olarak ayarlıdır.
@@ -59,7 +59,7 @@ Bu ekran, **yaş–gelir dağılımını** risk skoruna göre görselleştirir:
 
 ## 5. Öncelikli İnceleme Tablosu (Top 10)
 
-![Low – öncelikli başvurular tablosu](low5.png)
+![Low – öncelikli başvurular tablosu](low5.png.png)
 
 - Tablo, skor sıralamasına göre en yüksek riskli 10 başvuruyu listeler.
 - Bu senaryoda eşik çok yüksek olduğu için **tüm kararlar “ONAY”**, ancak:
@@ -80,7 +80,7 @@ Bu ekran, **yaş–gelir dağılımını** risk skoruna göre görselleştirir:
 
 ## 7. Portföy Sağlık Özeti
 
-![Low – portföy görünümü ve segment tablo](low7.png)
+![Low – portföy görünümü ve segment tablo](low7.png.png)
 
 - **Toplam başvuru:** 500  
 - **Onay oranı:** %100  

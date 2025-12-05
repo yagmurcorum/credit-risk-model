@@ -1,4 +1,4 @@
-# Kredi Risk Skorlama Modeli (End-to-End ML Projesi)
+# KREDİ RİSK SKORLAMA MODELİ (End-to-End ML Projesi)
 
 Bankacılık sektöründe kredi başvurularının geri ödeme (*default*) riskini tahmin etmek için hazırlanmış uçtan uca bir **makine öğrenmesi projesi**.
 
@@ -48,7 +48,7 @@ Bu nedenle model sadece teknik metriklere (ROC-AUC vb.) göre değil, **iş gere
 
 **Veri sözlüğü:** `data/Data Dictionary.xls` dosyasında bulunmaktadır.  
 
-Ham Kaggle dosyaları (`cs-training.csv`, `cs-test.csv`, `cs-training-clean.csv`) **lokalde `data/` altında** beklenir; boyut nedeniyle `.gitignore` ile versiyon kontrolü dışında tutulabilir.
+Ham Kaggle dosyaları (`cs-training.csv`, `cs-test.csv`, `cs-training-clean.csv`) **lokalde `data/` altında** beklenir.
 
 ## Genel Yaklaşım ve Akış
 
@@ -73,8 +73,8 @@ Proje aşağıdaki adımlarla ilerler:
    Ham veriden final metriklere tek notebook’ta uçtan uca akış özeti.
 
 7. **Deployment (`src/` + `app/`)**  
-   - `src/` içinde train / inference pipeline’ları  
-   - `app/` içinde FastAPI API ve Streamlit dashboard
+   - `src/` : Modeli eğiten ve tahmin üreten tüm core pipeline kodlarını içerir
+   - `app/` : Deployment katmanı. FastAPI ve Streamlit burada ve tahmin için src.inference / src.predict içindeki fonksiyonları çağırıyor.
 
 Detaylı yazılı açıklamalar **`docs/`** klasöründedir:
 
@@ -116,7 +116,7 @@ Daha ileri bir iterasyonda, ek bir *bağımsız test seti* veya zaman bazlı spl
 
 ## Feature Engineering Özeti
 
-Tüm feature engineering pipeline’ı **`src/data_preprocessing.py`** içindeki `prepare_training` fonksiyonunda toplanmıştır.
+Tüm data cleaning + feature engineering adımları, `src/data_preprocessing.py` dosyasındaki fonksiyonların `prepare_training` pipeline’ı içinde sıralı olarak çalıştırılmasıyla uygulanır.
 
 ### 1. Temel Temizlik (`clean_basic`)
 
@@ -175,14 +175,15 @@ Tüm feature engineering pipeline’ı **`src/data_preprocessing.py`** içindeki
 
 ### 8. Feature Selection (`apply_feature_selection`)
 
-- Yüksek korelasyonlu / redundant veya çok zayıf sinyal üreten bazı kolonlar düşürülür:
+  - Yüksek korelasyonlu / redundant veya çok zayıf sinyal üreten bazı kolonlar düşürülür:
   - Ham delinquency kolonları (yerine `DelinquencySeverityScore` tutulur)  
   - Bazı etkileşimler  
   - Bazı log dönüşümler vb.
 
 **Sonuç:**  
-Final model; orijinal, FE ve binning feature’larının birleştirilmesiyle oluşan **22 feature’lık** bir set üzerinde eğitilmiştir (`data/training_prepared.csv` içinde saklanır).
 
+- Final model; orijinal değişkenler, feature engineering çıktıları ve binning feature’larının birleştirilmesiyle oluşan **22 feature’lık** bir set üzerinde eğitilmiştir.
+- Bu final tablo `data/training_prepared.csv` dosyasında saklanır ve model eğitimi ile değerlendirme aşamalarında kullanılır.
 
 ## Baseline Modeller
 
@@ -200,8 +201,7 @@ Kullanılan iki temel model:
 **Özet:**
 
 - Her iki model de ROC-AUC ≈ **0.85** civarında performans verir.  
-- Logistic Regression daha yüksek **recall**,  
-  Random Forest ise bir miktar daha iyi **F1** sunar.  
+- Logistic Regression daha yüksek **recall**, Random Forest ise bir miktar daha iyi **F1** sunar.  
 - Veri belirgin şekilde non-lineer olduğundan, daha güçlü bir **gradient boosting** modeline (XGBoost) geçmek mantıklı bulunmuştur.
 
 ## Final Model: XGBoost + Threshold
@@ -301,12 +301,13 @@ SHAP analizi `notebooks/05_xgboost.ipynb` ve `docs/evaluation.md` içinde detayl
   - XGBoost parametreleri (`SCALE_POS_WEIGHT`, varsayılan param sözlükleri).
 
 - **`data_preprocessing.py`**  
-  - Ana temizlik + feature engineering pipeline’ı.  
-  - `prepare_training(df)` → ham Kaggle formatındaki veriden final feature tablosunu üretir (`training_prepared.csv`).
+  - Ana temizlik + feature engineering pipeline’ının kod karşılığıdır.  
+  - `prepare_training(df)` fonksiyonu, ham Kaggle formatındaki veriyi alır, tüm cleaning ve feature engineering adımlarını uygular ve `data/training_prepared.csv`
+     dosyası ile aynı şemaya sahip final feature tablosunu üretir.
 
 - **`feature_engineering.py`**  
-  - Notebooklarda denenen alternatif FE fonksiyonlarının daha parçalı versiyonları.  
-  - Asıl eğitim pipeline’ı `data_preprocessing.py` üzerinden çalışır.
+  - Notebooklarda denenen alternatif / parçalı FE fonksiyonlarını içerir.  
+  - Asıl eğitim pipeline’ı **`src/data_preprocessing.py` içindeki `prepare_training`** üzerinden çalışır; `feature_engineering.py` daha çok referans ve gelecekteki iyileştirmeler için tutulmuştur
 
 - **`predict.py`**  
   - `predict_from_df(df)`:
@@ -402,10 +403,6 @@ Detaylı kullanım adımları, ek ekran görüntüleri ve senaryo örnekleri iç
    - Platform yetkinlikleri ve kullanım alanları  
    - Model mimarisi ve performans özeti  
    - Dashboard ve backend bileşenlerinin kısa dokümantasyonu  
-
-**Başlatmak için:**
-
-- `streamlit run app/streamlit_app.py`  
 
 Dashboard kullanım rehberi, ekran görüntüleriyle birlikte `docs/dashboard_guide.md` dosyasında özetlenmiştir.
 

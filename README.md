@@ -456,72 +456,74 @@ gibi edge case senaryolarını test eder.
 Aşağıdaki yapı, repodaki son düzeni özetler:
 
     credit-risk-model/
-    ├── app/
-    │   ├── api.py                     # FastAPI – REST API (health + /predict)
-    │   └── streamlit_app.py           # Streamlit UI (dashboard + batch scoring)
-    │
-    ├── data/
-    │   ├── training_prepared.csv      # FE sonrası final eğitim seti
-    │   ├── test_sample_raw.csv        # Dashboard hızlı test dosyası
-    │   ├── test_portfolio_low_risk.csv
-    │   ├── test_portfolio_mixed.csv
-    │   ├── test_portfolio_stressed.csv
-    │   ├── Data Dictionary.xls
-    │   └── (lokalde, .gitignore’da) cs-training.csv, cs-test.csv, cs-training-clean.csv
-    │
-    ├── docs/
-    │   ├── business_context.md
-    │   ├── eda.md
-    │   ├── baseline.md
-    │   ├── feature_eng.md
-    │   ├── model_opt.md
-    │   ├── evaluation.md
-    │   ├── pipeline.md
-    │   ├── monitoring_plan.md
-    │   ├── dashboard_guide.md
-    │   └── cases/
-    │       ├── dashboard1.png
-    │       ├── dashboard2.png
-    │       ├── low/
-    │       │   ├── low.md
-    │       │   ├── low1.png … low8.png
-    │       ├── mixed/
-    │       │   ├── mixed.md
-    │       │   ├── mixed1.png … mixed8.png
-    │       └── stress/
-    │           ├── stress.md
-    │           ├── stress1.png … stress8.png
-    │
-    ├── models/
-    │   └── xgboost_credit_risk_final.pkl
-    │
-    ├── notebooks/
-    │   ├── 01_eda.ipynb
-    │   ├── 02_data_cleaning.ipynb
-    │   ├── 03_feature_engineering.ipynb
-    │   ├── 04_baseline.ipynb
-    │   ├── 05_xgboost.ipynb
-    │   └── 06_final_pipeline.ipynb
-    │
-    ├── src/
-    │   ├── __init__.py
-    │   ├── config.py
-    │   ├── data_preprocessing.py
-    │   ├── feature_engineering.py
-    │   ├── pipeline.py
-    │   ├── predict.py
-    │   └── inference.py
-    │
-    ├── tests/
-    │   ├── test_sample.py
-    │   ├── test_edge_inputs.py
-    │   └── generate_test_portfolios.py
-    │
-    ├── .gitignore
-    ├── LICENSE
-    ├── Makefile
-    ├── requirements.txt
-    └── README.md
+├── app/
+│   ├── api.py                     # FastAPI – REST API (health + /predict)
+│   └── streamlit_app.py           # Streamlit UI (dashboard + batch scoring)
+│
+├── data/
+│   ├── training_prepared.csv      # FE sonrası final eğitim seti
+│   ├── test_sample_raw.csv        # Dashboard hızlı test dosyası
+│   ├── test_portfolio_low_risk.csv
+│   ├── test_portfolio_mixed.csv
+│   ├── test_portfolio_stressed.csv
+│   ├── Data Dictionary.xls
+│   └── (lokalde, .gitignore’da) cs-training.csv, cs-test.csv, cs-training-clean.csv
+│
+├── docs/
+│   ├── business_context.md
+│   ├── eda.md
+│   ├── baseline.md
+│   ├── feature_eng.md
+│   ├── model_opt.md
+│   ├── evaluation.md
+│   ├── pipeline.md
+│   ├── monitoring_plan.md
+│   ├── dashboard_guide.md
+│   └── cases/
+│       ├── dashboard1.png
+│       ├── dashboard2.png
+│       ├── forceplot_customer_123.png
+│       ├── low/
+│       │   ├── low.md
+│       │   ├── low1.png … low8.png
+│       ├── mixed/
+│       │   ├── mixed.md
+│       │   ├── mixed1.png … mixed8.png
+│       └── stress/
+│           ├── stress.md
+│           ├── stress1.png … stress8.png
+│
+├── models/
+│   └── xgboost_credit_risk_final.pkl
+│
+├── notebooks/
+│   ├── 01_eda.ipynb
+│   ├── 02_data_cleaning.ipynb
+│   ├── 03_feature_engineering.ipynb
+│   ├── 04_baseline.ipynb
+│   ├── 05_xgboost.ipynb
+│   └── 06_final_pipeline.ipynb
+│
+├── src/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── data_preprocessing.py
+│   ├── feature_engineering.py
+│   ├── pipeline.py
+│   ├── predict.py
+│   └── inference.py
+│
+├── tests/
+│   ├── test_sample.py
+│   ├── test_edge_inputs.py
+│   └── generate_test_portfolios.py
+│
+├── .gitignore
+├── LICENSE
+├── Makefile
+├── requirements.txt
+└── README.md
+
 
 
 ## Çalıştırma Adımları (Özet)

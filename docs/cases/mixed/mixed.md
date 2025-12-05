@@ -51,7 +51,7 @@ Kullanılan veri dosyası: `data/test_portfolio_mixed.csv`
 
 - Tablo, **en yüksek skorlu 10 başvuruyu** ısı haritası tonlarıyla gösteriyor.
 - Bu başvuruların tamamı **“Çok Yüksek”** risk kategorisinde ve karar kolonu **“Detaylı İnceleme”** olarak işaretlenmiş durumda.
-- Ekip bu tabloyu kullanarak, **risk iştahını en çok zorlayan** başvuruları tek tıkla inceleyebiliyor.
+- Ekip bu tabloyu kullanarak, **risk seviyesini en çok zorlayan** başvuruları tek tıkla inceleyebiliyor.
 
 ## 6. Risk Segmentlerine Göre Aylık Gelir Dağılımı
 

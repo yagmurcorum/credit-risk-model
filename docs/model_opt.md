@@ -40,7 +40,7 @@ Bu doküman `05_xgboost.ipynb` notebook'unda yapılan XGBoost model optimizasyon
 
 **Değerlendirme:**
 - Baseline modellerden (LR: 0.8622, RF: 0.8501) daha iyi ROC-AUC.
-- Yüksek recall (~%78) ama düşük precision (~%22) → Çok fazla yanlış alarm.
+- Yüksek recall (yaklaşık %78) ama düşük precision (yaklaşık %22) → Çok fazla yanlış alarm.
 - Bu nedenle hyperparameter optimizasyonu ve threshold tuning adımları planlandı.
 
 ## Hyperparameter Optimizasyonu
@@ -50,15 +50,16 @@ Bu doküman `05_xgboost.ipynb` notebook'unda yapılan XGBoost model optimizasyon
 - **Iterasyon sayısı:** 20
 - **Scoring metrik:** ROC-AUC (sınıf dengesiz yapısı için uygun)
 - **Arama uzayı:**
-
-    {
-        "model__n_estimators": [200, 300, 400, 500],
-        "model__max_depth": [3, 4, 5, 6],
-        "model__min_child_weight": [1, 2, 3, 4],
-        "model__subsample": [0.7, 0.8, 0.9, 1.0],
-        "model__colsample_bytree": [0.7, 0.8, 0.9, 1.0],
-        "model__learning_rate": [0.03, 0.05, 0.07, 0.1]
-    }
+```python  
+{
+    "model__n_estimators": [200, 300, 400, 500],
+    "model__max_depth": [3, 4, 5, 6],
+    "model__min_child_weight": [1, 2, 3, 4],
+    "model__subsample": [0.7, 0.8, 0.9, 1.0],
+    "model__colsample_bytree": [0.7, 0.8, 0.9, 1.0],
+    "model__learning_rate": [0.03, 0.05, 0.07, 0.1]
+}
+```
 
 **En İyi Parametreler (CV sonucu):**
 - `subsample`: 0.9  

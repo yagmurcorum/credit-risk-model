@@ -1,4 +1,4 @@
-# Kredi Risk Skorlama Modeli (End-to-End ML Projesi)
+# KREDİ RİSK SKORLAMA MODELİ (End-to-End ML Projesi)
 
 Bankacılık sektöründe kredi başvurularının geri ödeme (*default*) riskini tahmin etmek için hazırlanmış uçtan uca bir **makine öğrenmesi projesi**.
 
@@ -48,7 +48,7 @@ Bu nedenle model sadece teknik metriklere (ROC-AUC vb.) göre değil, **iş gere
 
 **Veri sözlüğü:** `data/Data Dictionary.xls` dosyasında bulunmaktadır.  
 
-Ham Kaggle dosyaları (`cs-training.csv`, `cs-test.csv`, `cs-training-clean.csv`) **lokalde `data/` altında** beklenir; boyut nedeniyle `.gitignore` ile versiyon kontrolü dışında tutulabilir.
+Ham Kaggle dosyaları (`cs-training.csv`, `cs-test.csv`, `cs-training-clean.csv`) **lokalde `data/` altında** beklenir.
 
 ## Genel Yaklaşım ve Akış
 
@@ -73,8 +73,8 @@ Proje aşağıdaki adımlarla ilerler:
    Ham veriden final metriklere tek notebook’ta uçtan uca akış özeti.
 
 7. **Deployment (`src/` + `app/`)**  
-   - `src/` içinde train / inference pipeline’ları  
-   - `app/` içinde FastAPI API ve Streamlit dashboard
+   - `src/` : Modeli eğiten ve tahmin üreten tüm core pipeline kodlarını içerir
+   - `app/` : Deployment katmanı. FastAPI ve Streamlit burada ve tahmin için src.inference / src.predict içindeki fonksiyonları çağırıyor.
 
 Detaylı yazılı açıklamalar **`docs/`** klasöründedir:
 
@@ -116,7 +116,7 @@ Daha ileri bir iterasyonda, ek bir *bağımsız test seti* veya zaman bazlı spl
 
 ## Feature Engineering Özeti
 
-Tüm feature engineering pipeline’ı **`src/data_preprocessing.py`** içindeki `prepare_training` fonksiyonunda toplanmıştır.
+Tüm data cleaning + feature engineering adımları, `src/data_preprocessing.py` dosyasındaki fonksiyonların `prepare_training` pipeline’ı içinde sıralı olarak çalıştırılmasıyla uygulanır.
 
 ### 1. Temel Temizlik (`clean_basic`)
 
@@ -175,14 +175,15 @@ Tüm feature engineering pipeline’ı **`src/data_preprocessing.py`** içindeki
 
 ### 8. Feature Selection (`apply_feature_selection`)
 
-- Yüksek korelasyonlu / redundant veya çok zayıf sinyal üreten bazı kolonlar düşürülür:
+  - Yüksek korelasyonlu / redundant veya çok zayıf sinyal üreten bazı kolonlar düşürülür:
   - Ham delinquency kolonları (yerine `DelinquencySeverityScore` tutulur)  
   - Bazı etkileşimler  
   - Bazı log dönüşümler vb.
 
 **Sonuç:**  
-Final model; orijinal, FE ve binning feature’larının birleştirilmesiyle oluşan **22 feature’lık** bir set üzerinde eğitilmiştir (`data/training_prepared.csv` içinde saklanır).
 
+- Final model; orijinal değişkenler, feature engineering çıktıları ve binning feature’larının birleştirilmesiyle oluşan **22 feature’lık** bir set üzerinde eğitilmiştir.
+- Bu final tablo `data/training_prepared.csv` dosyasında saklanır ve model eğitimi ile değerlendirme aşamalarında kullanılır.
 
 ## Baseline Modeller
 
@@ -200,8 +201,7 @@ Kullanılan iki temel model:
 **Özet:**
 
 - Her iki model de ROC-AUC ≈ **0.85** civarında performans verir.  
-- Logistic Regression daha yüksek **recall**,  
-  Random Forest ise bir miktar daha iyi **F1** sunar.  
+- Logistic Regression daha yüksek **recall**, Random Forest ise bir miktar daha iyi **F1** sunar.  
 - Veri belirgin şekilde non-lineer olduğundan, daha güçlü bir **gradient boosting** modeline (XGBoost) geçmek mantıklı bulunmuştur.
 
 ## Final Model: XGBoost + Threshold
@@ -301,12 +301,13 @@ SHAP analizi `notebooks/05_xgboost.ipynb` ve `docs/evaluation.md` içinde detayl
   - XGBoost parametreleri (`SCALE_POS_WEIGHT`, varsayılan param sözlükleri).
 
 - **`data_preprocessing.py`**  
-  - Ana temizlik + feature engineering pipeline’ı.  
-  - `prepare_training(df)` → ham Kaggle formatındaki veriden final feature tablosunu üretir (`training_prepared.csv`).
+  - Ana temizlik + feature engineering pipeline’ının kod karşılığıdır.  
+  - `prepare_training(df)` fonksiyonu, ham Kaggle formatındaki veriyi alır, tüm cleaning ve feature engineering adımlarını uygular ve `data/training_prepared.csv`
+     dosyası ile aynı şemaya sahip final feature tablosunu üretir.
 
 - **`feature_engineering.py`**  
-  - Notebooklarda denenen alternatif FE fonksiyonlarının daha parçalı versiyonları.  
-  - Asıl eğitim pipeline’ı `data_preprocessing.py` üzerinden çalışır.
+  - Notebooklarda denenen alternatif / parçalı FE fonksiyonlarını içerir.  
+  - Asıl eğitim pipeline’ı **`src/data_preprocessing.py` içindeki `prepare_training`** üzerinden çalışır; `feature_engineering.py` daha çok referans ve gelecekteki iyileştirmeler için tutulmuştur
 
 - **`predict.py`**  
   - `predict_from_df(df)`:
@@ -367,6 +368,14 @@ Bu arayüz üzerinden:
 - Her bir müşteri için default olasılığını ve risk segmentini görebilir,
 - Risk dağılımı histogramı, segmentasyon donut grafiği ve yaş–gelir balon grafiği ile portföy risk profilini inceleyebilirsiniz.
 
+### Dashboard Önizleme
+
+Kredi risk dashboard’unun örnek görünümü:
+
+![Dashboard Önizleme](docs/cases/dashbboard1.png)
+
+Detaylı kullanım adımları, ek ekran görüntüleri ve senaryo örnekleri için:  
+`docs/dashboard_guide.md` dosyasına bakabilirsiniz.
 
 **Üst sekmeler:**
 
@@ -394,10 +403,6 @@ Bu arayüz üzerinden:
    - Platform yetkinlikleri ve kullanım alanları  
    - Model mimarisi ve performans özeti  
    - Dashboard ve backend bileşenlerinin kısa dokümantasyonu  
-
-**Başlatmak için:**
-
-- `streamlit run app/streamlit_app.py`  
 
 Dashboard kullanım rehberi, ekran görüntüleriyle birlikte `docs/dashboard_guide.md` dosyasında özetlenmiştir.
 
@@ -455,74 +460,78 @@ gibi edge case senaryolarını test eder.
 
 Aşağıdaki yapı, repodaki son düzeni özetler:
 
-    credit-risk-model/
-    ├── app/
-    │   ├── api.py                     # FastAPI – REST API (health + /predict)
-    │   └── streamlit_app.py           # Streamlit UI (dashboard + batch scoring)
-    │
-    ├── data/
-    │   ├── training_prepared.csv      # FE sonrası final eğitim seti
-    │   ├── test_sample_raw.csv        # Dashboard hızlı test dosyası
-    │   ├── test_portfolio_low_risk.csv
-    │   ├── test_portfolio_mixed.csv
-    │   ├── test_portfolio_stressed.csv
-    │   ├── Data Dictionary.xls
-    │   └── (lokalde, .gitignore’da) cs-training.csv, cs-test.csv, cs-training-clean.csv
-    │
-    ├── docs/
-    │   ├── business_context.md
-    │   ├── eda.md
-    │   ├── baseline.md
-    │   ├── feature_eng.md
-    │   ├── model_opt.md
-    │   ├── evaluation.md
-    │   ├── pipeline.md
-    │   ├── monitoring_plan.md
-    │   ├── dashboard_guide.md
-    │   └── cases/
-    │       ├── dashboard1.png
-    │       ├── dashboard2.png
-    │       ├── low/
-    │       │   ├── low.md
-    │       │   ├── low1.png … low8.png
-    │       ├── mixed/
-    │       │   ├── mixed.md
-    │       │   ├── mixed1.png … mixed8.png
-    │       └── stress/
-    │           ├── stress.md
-    │           ├── stress1.png … stress8.png
-    │
-    ├── models/
-    │   └── xgboost_credit_risk_final.pkl
-    │
-    ├── notebooks/
-    │   ├── 01_eda.ipynb
-    │   ├── 02_data_cleaning.ipynb
-    │   ├── 03_feature_engineering.ipynb
-    │   ├── 04_baseline.ipynb
-    │   ├── 05_xgboost.ipynb
-    │   └── 06_final_pipeline.ipynb
-    │
-    ├── src/
-    │   ├── __init__.py
-    │   ├── config.py
-    │   ├── data_preprocessing.py
-    │   ├── feature_engineering.py
-    │   ├── pipeline.py
-    │   ├── predict.py
-    │   └── inference.py
-    │
-    ├── tests/
-    │   ├── test_sample.py
-    │   ├── test_edge_inputs.py
-    │   └── generate_test_portfolios.py
-    │
-    ├── .gitignore
-    ├── LICENSE
-    ├── Makefile
-    ├── requirements.txt
-    └── README.md
+```
+credit-risk-model/
+├── app/
+│   ├── api.py                     # FastAPI – REST API (health + /predict)
+│   └── streamlit_app.py           # Streamlit UI (dashboard + batch scoring)
+│
+├── data/
+│   ├── training_prepared.csv      # FE sonrası final eğitim seti
+│   ├── test_sample_raw.csv        # Dashboard hızlı test dosyası
+│   ├── test_portfolio_low_risk.csv
+│   ├── test_portfolio_mixed.csv
+│   ├── test_portfolio_stressed.csv
+│   ├── Data Dictionary.xls
+│   └── (lokalde, .gitignore’da) cs-training.csv, cs-test.csv, cs-training-clean.csv
+│
+├── docs/
+│   ├── business_context.md
+│   ├── eda.md
+│   ├── baseline.md
+│   ├── feature_eng.md
+│   ├── model_opt.md
+│   ├── evaluation.md
+│   ├── pipeline.md
+│   ├── monitoring_plan.md
+│   ├── dashboard_guide.md
+│   └── cases/
+│       ├── dashboard1.png
+│       ├── dashboard2.png
+│       ├── forceplot_customer_123.png
+│       ├── shap.png
+│       ├── low/
+│       │   ├── low.md
+│       │   ├── low1.png … low8.png
+│       ├── mixed/
+│       │   ├── mixed.md
+│       │   ├── mixed1.png … mixed8.png
+│       └── stress/
+│           ├── stress.md
+│           ├── stress1.png … stress8.png
+│
+├── models/
+│   └── xgboost_credit_risk_final.pkl
+│
+├── notebooks/
+│   ├── 01_eda.ipynb
+│   ├── 02_data_cleaning.ipynb
+│   ├── 03_feature_engineering.ipynb
+│   ├── 04_baseline.ipynb
+│   ├── 05_xgboost.ipynb
+│   └── 06_final_pipeline.ipynb
+│
+├── src/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── data_preprocessing.py
+│   ├── feature_engineering.py
+│   ├── pipeline.py
+│   ├── predict.py
+│   └── inference.py
+│
+├── tests/
+│   ├── test_sample.py
+│   ├── test_edge_inputs.py
+│   └── generate_test_portfolios.py
+│
+├── .gitignore
+├── LICENSE
+├── Makefile
+├── requirements.txt
+└── README.md
 
+```
 
 ## Çalıştırma Adımları (Özet)
 

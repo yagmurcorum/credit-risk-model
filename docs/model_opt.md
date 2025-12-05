@@ -50,17 +50,16 @@ Bu doküman `05_xgboost.ipynb` notebook'unda yapılan XGBoost model optimizasyon
 - **Iterasyon sayısı:** 20
 - **Scoring metrik:** ROC-AUC (sınıf dengesiz yapısı için uygun)
 - **Arama uzayı:**
-  
-  ` ` `
-    {
-        "model__n_estimators": [200, 300, 400, 500],
-        "model__max_depth": [3, 4, 5, 6],
-        "model__min_child_weight": [1, 2, 3, 4],
-        "model__subsample": [0.7, 0.8, 0.9, 1.0],
-        "model__colsample_bytree": [0.7, 0.8, 0.9, 1.0],
-        "model__learning_rate": [0.03, 0.05, 0.07, 0.1]
-    }
-  ` ` `
+```python  
+{
+    "model__n_estimators": [200, 300, 400, 500],
+    "model__max_depth": [3, 4, 5, 6],
+    "model__min_child_weight": [1, 2, 3, 4],
+    "model__subsample": [0.7, 0.8, 0.9, 1.0],
+    "model__colsample_bytree": [0.7, 0.8, 0.9, 1.0],
+    "model__learning_rate": [0.03, 0.05, 0.07, 0.1]
+}
+```
 
 **En İyi Parametreler (CV sonucu):**
 - `subsample`: 0.9  

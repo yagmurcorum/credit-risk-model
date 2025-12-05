@@ -4,12 +4,12 @@ Bu doküman `01_eda.ipynb` notebook'unun kısa özeti ve önemli bulguları içe
 
 ## Veri Seti Bilgileri
 
-**- Kaynak:** data/cs-training.csv
-**- Satır sayısı:** ~150.000
-**- Sütun sayısı:** 12 (ham: 1 ID + 1 hedef + 10 feature)
-**- Hedef değişken:** SeriousDlqin2yrs
-**- 0** → Önümüzdeki 2 yıl içinde ciddi finansal gecikme yok
-**- 1** → Önümüzdeki 2 yıl içinde en az bir kez ciddi finansal gecikme var
+** - Kaynak:** data/cs-training.csv
+** - Satır sayısı:** ~150.000
+** - Sütun sayısı:** 12 (ham: 1 ID + 1 hedef + 10 feature)
+** - Hedef değişken:** SeriousDlqin2yrs
+** - 0** → Önümüzdeki 2 yıl içinde ciddi finansal gecikme yok
+** - 1** → Önümüzdeki 2 yıl içinde en az bir kez ciddi finansal gecikme var
 
 
 ## Veri Yapısı

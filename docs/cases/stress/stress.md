@@ -66,7 +66,8 @@ Modelin aşırı risk yükü altındaki davranışı, karar eşiği değişmeden
 - **Onay oranı:** %31  
 - **İnceleme oranı:** %69  
 - **Portföy riski:** 0.852  
-- Tüm segmentler “Yüksek” ve “Çok Yüksek” olarak sınıflandırılmıştır — *Düşük* veya *Orta* segment yoktur.
+- Tüm segmentler “Yüksek” ve “Çok Yüksek” olarak sınıflandırılmıştır
+- *Düşük* veya *Orta* segment yoktur.
 
 ## 8. İnteraktif Başvuru Gezgini
 

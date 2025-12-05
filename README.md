@@ -367,6 +367,14 @@ Bu arayüz üzerinden:
 - Her bir müşteri için default olasılığını ve risk segmentini görebilir,
 - Risk dağılımı histogramı, segmentasyon donut grafiği ve yaş–gelir balon grafiği ile portföy risk profilini inceleyebilirsiniz.
 
+### Dashboard Önizleme
+
+Kredi risk dashboard’unun örnek görünümü:
+
+![Dashboard Önizleme](docs/cases/dashboard1.png)
+
+Detaylı kullanım adımları, ek ekran görüntüleri ve senaryo örnekleri için:  
+`docs/dashboard_guide.md` dosyasına bakabilirsiniz.
 
 **Üst sekmeler:**
 

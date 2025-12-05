@@ -907,8 +907,6 @@ with tab4:
         for k, v in capabilities.items():
             st.markdown(f"**{k}:** {v}")
         
-        st.markmarkdown = st.markdown  # sadece alışkanlık için, işlevsel değil :)
-        
         st.markdown("---")
         
         st.markdown("### 🤖 Model Mimarisi ve Performans")

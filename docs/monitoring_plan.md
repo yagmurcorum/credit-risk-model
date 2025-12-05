@@ -2,6 +2,9 @@
 
 Model canlıya alındıktan sonra izlenecek metrikler ve alarm kuralları.
 
+> Not: Bu dokümandaki eşik değerler (PSI, latency, approval / bad rate aralıkları),
+> `src/config.py` içinde tanımlanan business kuralları ile tutarlı olacak şekilde seçilmiştir.
+
 ## Model Deployment Süreci
 
 ### 1. Model Paketleme
@@ -72,7 +75,7 @@ Model canlıya alındıktan sonra izlenecek metrikler ve alarm kuralları.
 *Onay/Red Oranları:*
 - Hedef approval rate: %85–95 aralığı
 - Decline rate: %5–15 aralığı
-- *Alarm:* Approval rate < %80 veya > %98 (iş hacmi / risk iştahı ile uyumsuzluk olabilir)
+- *Alarm:* Approval rate < %80 veya > %98 (iş hacmi / risk seviyesi ile uyumsuzluk olabilir)
 
 *Bad Rate in Approved:*
 - Hedef: %3–5 aralığı

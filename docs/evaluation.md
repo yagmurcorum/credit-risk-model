@@ -18,26 +18,35 @@ Bu doküman `05_xgboost.ipynb` notebook'unda yapılan model değerlendirme ve SH
 
 ### Validation Şeması ve Sınırlamalar
 
-Bu çalışmada veri, %80 eğitim / %20 validation olacak şekilde (stratify) ikiye ayrılmış
-ve final performans raporu validation seti üzerinden yapılmıştır. Ayrı bir bağımsız
-hold-out test seti ayrılmamıştır.
+Bu çalışmada veri, **%80 eğitim / %20 validation** olacak şekilde (stratified split) ikiye ayrılmış ve
+**model seçimi + final performans raporu bu validation seti üzerinde** yapılmıştır.
+Ayrı bir bağımsız **hold-out test seti** ayrılmamıştır.
 
-Veri boyutu büyük olduğu için ek bir test seti ayırmanın metriklerde anlamlı bir fark
-yaratmasını beklemiyoruz; buna rağmen, daha ileri bir iterasyonda:
+Veri boyutu büyük olduğu için, pratikte ek bir test seti ayırmanın metriklerde anlamlı bir fark
+yaratmasını beklemiyoruz. Buna rağmen, daha ileri bir iterasyonda:
 
-- Model seçimi için validation seti,
-- Son rapor için ise dokunulmamış bir hold-out test seti
+- **model seçimi** için validation seti,
+- **nihai raporlama** için ise dokunulmamış bağımsız bir hold-out test seti
 
 kurgulamak, metodolojik olarak bir adım daha ileri olacaktır.
 
-**Alternatifler neden seçilmedi?**
-- **K-Fold CV:** Hyperparameter tuning için kullanıldı; final değerlendirme için tek bir validation set, hız ve yorumlanabilirlik açısından daha pratik.
-- **Time-based split:** Veri seti zaman serisi değil; rastgele split bu problem için uygun.
+### Alternatifler Neden Seçilmedi?
 
-> Not: Feature engineering istatistikleri (imputasyon, bin sınırları vb.) tüm veri üzerinde
-> hesaplanmıştır; bu teorik olarak hafif bir data leakage riski oluşturur. Ancak bu adımlarda
-> hedef değişken (`SeriousDlqin2yrs`) kullanılmadığı ve veri seti büyük olduğu için
-> pratik etkisinin sınırlı olduğu değerlendirilmektedir.
+- **K-Fold CV:**  
+ - Hyperparameter tuning aşamasında kullanılmıştır.  
+ - Final değerlendirme için ise tek bir validation set kullanmak, hız ve yorumlanabilirlik açısından bu proje bağlamında daha pratiktir.
+
+- **Time-based split:**  
+  - Veri seti zaman serisi yapısında değildir; gözlemler belirli bir kronolojik sıraya göre toplanmamıştır.
+  - Bu nedenle **rastgele stratified split**, bu problem için uygun bir seçimdir.
+
+> **Not (Data Leakage):**  
+> Median, quantile ve bin sınırları gibi bazı istatistikler, train/validation
+> ayrımından önce **tüm veri** üzerinde hesaplanmıştır. Bu, teorik olarak
+> hafif bir *data leakage* riski yaratır; ancak hedef değişken
+> (`SeriousDlqin2yrs`) bu adımlarda kullanılmadığı için pratik etkisinin düşük
+> olduğu düşünülmektedir. İleride, bu istatistiklerin yalnızca **train set**
+> üzerinde fit edilmesi planlanmaktadır.
 
 ## Baseline vs Final Model Karşılaştırması
 
@@ -64,10 +73,11 @@ kurgulamak, metodolojik olarak bir adım daha ileri olacaktır.
 | F1-score | 0.3450           | 0.4489                    | **+0.1039 (+~%30)** |
 
 **Final model özellikleri:**
-- 22 sayısal + 4 kategorik feature (encoding sonrası ~30 feature).
-- Hyperparameter optimization (RandomizedSearchCV, 3-fold CV).
-- Optimal threshold tuning (0.81).
-- SHAP ile açıklanabilirlik.
+- 22 sayısal + 4 kategorik feature (XGBoost pipeline girişi – toplam 26 kolon)
+- ColumnTransformer + OneHotEncoder sonrası modelin gördüğü toplam 38 feature
+- Hyperparameter optimization (RandomizedSearchCV, 3-fold Stratified CV)
+- Optimal threshold tuning (0.81)
+- SHAP ile açıklanabilirlik (global + bireysel seviye) 
 
 **Başarı farkı:**
 - **ROC-AUC:** Baseline XGBoost’a göre küçük ama anlamlı bir iyileşme (0.8685 → 0.8699).
@@ -80,64 +90,74 @@ kurgulamak, metodolojik olarak bir adım daha ileri olacaktır.
 - Threshold tuning, precision–recall dengesini iş gereksinimlerine daha uygun hale getirdi.
 - Yanlış alarm oranı (false positive) azaldığı için operasyonel maliyetler düşme eğiliminde.
 
-## SHAP Analizi – Feature Importance
+### SHAP Analizi – Feature Importance
 
-SHAP (SHapley Additive Explanations) analizi ile modelin karar mekanizması
-hem global (feature importance) hem de lokal (tekil müşteri) düzeyde açıklanmıştır.
+SHAP (SHapley Additive Explanations) analizi ile modelin karar mekanizması global düzeyde (feature importance / beeswarm grafikleri) açıklanmıştır.
+Müşteri bazlı (lokal) SHAP incelemeleri ise `notebooks/05_xgboost.ipynb`içinde bırakılmış, bu dokümana ayrıca ekran görüntüsü alınmamıştır.
 
-### En Önemli Feature’lar (Global SHAP – Beeswarm Özeti)
 
-1. **RevolvingUtilizationOfUnsecuredLines**  
-   - Kredi kartı limitlerinin ne kadarının kullanıldığını gösteren oran.  
-   - Yüksek kullanım (kırmızı noktalar) genellikle pozitif SHAP değerleriyle sağ tarafta;
-     düşük kullanım (mavi) negatif tarafta yoğunlaşıyor.  
-   - **Yorum:** Limitlerinin büyük kısmını kullanan müşteriler model gözünde belirgin şekilde daha riskli.
+<p align="center">
+  <img src="cases/shap.png" alt="SHAP beeswarm feature importance" width="650">
+</p>
 
-2. **Delinq_x_Utilization (FE)**  
-   - Toplam gecikme sayısı × kart kullanım oranı.  
-   - Hem gecikmesi hem de kart kullanımı yüksek olan müşterilerde SHAP değerleri pozitif bölgede.  
-   - **Yorum:** Gecikme + agresif kullanım kombinasyonu, model için net bir yüksek risk sinyali.
+<p align="center">
+  <em>Şekil: Validation set üzerinde XGBoost modelinin global SHAP (beeswarm) özeti</em>
+</p>
 
-3. **EverDelinquent (FE)**  
-   - Müşterinin geçmişinde en az bir gecikme yaşayıp yaşamadığını gösteren ikili değişken (0/1).  
-   - Değer 1 olduğunda noktalar daha çok sağ tarafa kayıyor.  
-   - **Yorum:** Gecikme geçmişi olan müşteriler daha kırılgan bir profil çiziyor.
+#### En Önemli Feature’lar (Global SHAP – Beeswarm Özeti)
 
-4. **DelinquencySeverityScore (FE)**  
-   - 30–59 / 60–89 / 90+ gün gecikmeleri ağırlıklı toplayan “gecikme şiddeti skoru”.  
-   - Skor yükseldikçe SHAP değeri pozitif tarafa kayıyor.  
-   - **Yorum:** Daha yoğun ve ağır gecikme geçmişi, default riskini belirgin biçimde artırıyor.
+- **RevolvingUtilizationOfUnsecuredLines**  
+  - Kredi kartı limitlerinin ne kadarının kullanıldığını gösteren oran.  
+  - Yüksek kullanım (kırmızı noktalar) genellikle pozitif SHAP değerleriyle sağ tarafta; düşük kullanım (mavi) negatif tarafta yoğunlaşıyor.  
+  - **Yorum:** Limitlerinin büyük kısmını kullanan müşteriler model gözünde belirgin şekilde daha riskli.
 
-5. **age**  
-   - Genç yaşlar (mavi) nispeten daha fazla pozitif SHAP tarafında; orta–ileri yaşlar daha çok negatif tarafta toplanıyor.  
-   - **Yorum:** Model, genç profili biraz daha riskli; daha olgun yaşları ise daha güvenli olarak değerlendiriyor.
+- **Delinq_x_Utilization (FE)**  
+  - Toplam gecikme sayısı × kart kullanım oranı.  
+  - Hem gecikmesi hem de kart kullanımı yüksek olan müşterilerde SHAP değerleri pozitif bölgede.  
+  - **Yorum:** Gecikme + agresif kullanım kombinasyonu, model için net bir yüksek risk sinyali.
 
-6. **MonthlyIncome & IncomeBin (0–3k, 3–6k, 6–10k, 10k+) (FE)**  
-   - Aylık gelir ve gelir segmentlerini temsil eden değişkenler.  
-   - Yüksek gelir ve üst segment bin’lerinde SHAP değerleri çoğunlukla negatif; düşük gelir seviyelerinde ise pozitif değerlere daha sık rastlanıyor.  
-   - **Yorum:** Gelir seviyesi ve gelir segmentasyonu, ödeme kapasitesi üzerinden risk profilini belirgin şekilde etkiliyor.
+- **EverDelinquent (FE)**  
+  - Müşterinin geçmişinde en az bir gecikme yaşayıp yaşamadığını gösteren ikili değişken (0/1).  
+  - Değer 1 olduğunda noktalar daha çok sağ tarafa kayıyor.  
+  - **Yorum:** Gecikme geçmişi olan müşteriler daha kırılgan bir profil çiziyor.
 
-7. **DebtToIncomeRatio & DebtRatio_log1p (FE)**  
-   - Toplam borç / gelir oranı ve bu oranın log-transform edilmiş hali.  
-   - SHAP dağılımı, bu değişkenlerin diğer ana risk faktörlerine göre görece daha sınırlı ama tutarlı bir etki taşıdığını gösteriyor.  
-   - **Yorum:** Borç/gelir dengesi model için önemli; ancak bu veri setinde asıl yükü delinquency ve utilization tarafı çekiyor.
+- **DelinquencySeverityScore (FE)**  
+  - 30–59 / 60–89 / 90+ gün gecikmeleri ağırlıklı toplayan “gecikme şiddeti skoru”.  
+  - Skor yükseldikçe SHAP değeri pozitif tarafa kayıyor.  
+  - **Yorum:** Daha yoğun ve ağır gecikme geçmişi, default riskini belirgin biçimde artırıyor.
 
-8. **EffectiveDebtLoad (FE)**  
-   - `DebtRatio × MonthlyIncome` → Gelire göre parasal borç yükü.  
-   - Değer yükseldikçe birçok gözlemde SHAP değerlerinin pozitif tarafa kaydığı görülüyor.  
-   - **Yorum:** Gelire göre borcu “ağır” olan müşteriler daha riskli olarak değerlendiriliyor.
+- **age**  
+  - Genç yaşlar (mavi) nispeten daha fazla pozitif SHAP tarafında; orta–ileri yaşlar daha çok negatif tarafta toplanıyor.  
+  - **Yorum:** Model, genç profili biraz daha riskli; daha olgun yaşları ise daha güvenli olarak değerlendiriyor.
 
-9. **NumberOfOpenCreditLinesAndLoans & NumberRealEstateLoansOrLines**  
-   - Aktif kredi sayısı ve gayrimenkul kredisi sayısı.  
-   - Makul seviyelerde etkileri nötr; çok yüksek sayılarda SHAP değeri pozitif tarafa kayıyor.  
-   - **Yorum:** Çok sayıda açık kredi ve mortgage, risk yönünde ek baskı yaratıyor.
+- **MonthlyIncome & IncomeBin (0–3k, 3–6k, 6–10k, 10k+) (FE)**  
+  - Aylık gelir ve gelir segmentlerini temsil eden değişkenler.  
+  - Yüksek gelir ve üst segment bin’lerinde SHAP değerleri çoğunlukla negatif; düşük gelir seviyelerinde ise pozitif değerlere daha sık rastlanıyor.  
+  - **Yorum:** Gelir seviyesi ve gelir segmentasyonu, ödeme kapasitesi üzerinden risk profilini belirgin şekilde etkiliyor.
 
-10. **RealEstateExposure & HighUtil_x_DebtRatio (FE)**  
-    - `RealEstateExposure`: `NumberRealEstateLoansOrLines × DebtRatio` → Gayrimenkul kredi yükü.  
-    - `HighUtil_x_DebtRatio`: “Yüksek kullanım” flag’i (1/0) × borç/gelir oranı.  
-    - **Yorum:** Yoğun konut/gayrimenkul kredisi ve aynı anda hem yüksek utilization hem de yüksek borç oranına sahip olmak, modelde net bir yüksek risk kümesini temsil ediyor.
+- **DebtToIncomeRatio & DebtRatio_log1p (FE)**  
+  - Toplam borç / gelir oranı ve bu oranın log-transform edilmiş hali.  
+  - SHAP dağılımı, bu değişkenlerin diğer ana risk faktörlerine göre görece daha sınırlı ama tutarlı bir etki taşıdığını gösteriyor.  
+  - **Yorum:** Borç/gelir dengesi model için önemli; ancak bu veri setinde asıl yükü delinquency ve utilization tarafı çekiyor.
+
+- **EffectiveDebtLoad (FE)**  
+  - `EffectiveDebtLoad = DebtRatio × MonthlyIncome` → Gelire göre parasal borç yükü.  
+  - Değer yükseldikçe birçok gözlemde SHAP değerlerinin pozitif tarafa kaydığı görülüyor.  
+  - **Yorum:** Gelire göre borcu “ağır” olan müşteriler daha riskli olarak değerlendiriliyor.
+
+- **NumberOfOpenCreditLinesAndLoans & NumberRealEstateLoansOrLines**  
+  - Aktif kredi sayısı ve gayrimenkul kredisi sayısı.  
+  - Makul seviyelerde etkileri nötr; çok yüksek sayılarda SHAP değeri pozitif tarafa kayıyor.  
+  - **Yorum:** Çok sayıda açık kredi ve mortgage, risk yönünde ek baskı yaratıyor.
+
+- **RealEstateExposure & HighUtil_x_DebtRatio (FE)**  
+  - **RealEstateExposure:** `NumberRealEstateLoansOrLines × DebtRatio` → Gayrimenkul kredi yükü.  
+  - **HighUtil_x_DebtRatio:** “Yüksek kullanım” flag’i (1/0) × borç/gelir oranı.  
+  - **Yorum:** Yoğun konut/gayrimenkul kredisi ve aynı anda hem yüksek utilization hem de yüksek borç oranına sahip olmak, modelde net bir yüksek risk kümesini temsil ediyor.
 
 > Ek not: `Utilization_x_DebtRatio` gibi bazı etkileşim değişkenleri, SHAP dağılımında beklenenden daha zayıf sinyal üretmektedir. Bu tip feature’lar, ileriki iterasyonlarda sadeleştirme veya feature pruning için aday olarak değerlendirilebilir.
+
+
 
 ### Business Yorumu
 

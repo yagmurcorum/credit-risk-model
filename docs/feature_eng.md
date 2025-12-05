@@ -70,27 +70,22 @@ ayrı bir bağımsız test seti yoktur. İleriki iterasyonlarda:
 
 Bu başlık altında modelde 0/1 bayrak gibi çalışan temel risk göstergeleri yer alır.
 
-### HighUtilizationFlag
+**HighUtilizationFlag**  
+- **Tanım:** `RevolvingUtilizationOfUnsecuredLines ≥ 1.0` → kredi kartı limitini aşan veya limite kadar dayanmış müşterileri işaretler.  
+- **Dağılım:** Müşterilerin yaklaşık %2.2’si bu flag’i alıyor.  
+- **Etkisi:** Çok yüksek kullanım segmentini yakalayarak en riskli gruplardan birini öne çıkarır; final feature setinde tutulmuştur.
 
-- Tanım: `RevolvingUtilizationOfUnsecuredLines > 1.0` (kredi kartı limit aşımı).
-- **Dağılım:** Müşterilerin yaklaşık %2.2’si limit aşımı yapıyor.
-- **Etkisi:** Çok yüksek risk segmentini işaretliyor; final sette tutuldu.
+**HighDebtFlag**  
+- **Tanım:** `DebtToIncomeRatio` dağılımının üst ~%7–8’lik dilimindeki müşterileri işaretler  
+  (train set’te bu eşik yaklaşık **0.40** civarına denk gelmiştir).  
+- **Dağılım:** Müşterilerin yaklaşık %7.2’si yüksek borç/gelir oranına sahiptir.  
+- **Etkisi:** Borç yükü aşırı olan segmenti ayırır; final sette tutulmuştur.
 
-### HighDebtFlag
+**MultipleDelinquencyFlag**  
+- **Tanım:** Toplam gecikme sayısı `TotalDelinquency ≥ 2`.  
+- **Etkisi:** Birden fazla gecikmesi olan müşterileri işaretler; delinquency tarafındaki yoğun problemi özetleyen güçlü bir bayraktır ve final sette tutulmuştur.
 
-- Tanım: `DebtToIncomeRatio > 0.4`.
-- **Dağılım:** Müşterilerin yaklaşık %7.2’si yüksek borç/gelir oranına sahip.
-- **Etkisi:** Borç yükü aşırı olan segmenti ayırıyor; final sette tutuldu.
-
-### MultipleDelinquencyFlag
-
-- Tanım: Toplam gecikme sayısı ≥ 2.
-- **Etkisi:** Aynı zamanda delinquency tarafında özet feature görevi görüyor;
-  birden fazla gecikmesi olan müşterileri işaretlediği için final sette tutuldu.
-
-> Not: `EverDelinquent` ve `Ever90DaysLate` de aslında flag’tir, ancak delinquency
-> hikâyesiyle birlikte yorumlandıkları için Delinquency bölümünde bırakılmıştır.
-
+> Not: `EverDelinquent` ve `Ever90DaysLate` de 0/1 flag niteliğindedir; ancak gecikme hikâyesiyle birlikte yorumlandıkları için Delinquency bölümünde anlatılmıştır.
 
 ## 3. Log Dönüşümleri
 

@@ -907,8 +907,6 @@ with tab4:
         for k, v in capabilities.items():
             st.markdown(f"**{k}:** {v}")
         
-        st.markmarkdown = st.markdown  # sadece alışkanlık için, işlevsel değil :)
-        
         st.markdown("---")
         
         st.markdown("### 🤖 Model Mimarisi ve Performans")
@@ -918,9 +916,9 @@ with tab4:
             st.markdown("""
             **Teknik Özellikler:**
             - Algoritma: XGBoost (Gradient Boosting)
-            - Özellik sayısı: 27 (feature engineering sonrası)
+            - Özellik sayısı: 26 (22 sayısal + 4 kategorik, hedef hariç)
             - Eğitim verisi: 150.000 başvuru
-            - Validasyon: 80/20 train–test bölünmesi
+            - Validasyon: 80/20 train–validation bölünmesi
             - Sınıf dengesizliği: scale_pos_weight = 13.96
             """)
         with col_b:
@@ -938,10 +936,16 @@ with tab4:
             <div class="info-card" style='background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); color: white;'>
                 <h3 style='color: white;'>📞 Destek ve İletişim</h3>
                 <p style='color: #e0e7ff;'>
-                    <strong>Teknik Destek:</strong><br>
-                    support@creditplatform.com<br><br>
-                    <strong>Çalışma Saatleri:</strong><br>
-                    Hafta içi: 09:00 – 18:00<br><br>
+                    <strong>İletişim:</strong><br>
+                    <a href="mailto:corumyagmuur@gmail.com" style='color:#bfdbfe;'>corumyagmuur@gmail.com</a><br><br>
+                    <strong>LinkedIn:</strong><br>
+                    <a href="https://www.linkedin.com/in/yagmurcorum" target="_blank" style='color:#bfdbfe;'>
+                        linkedin.com/in/yagmurcorum
+                    </a><br><br>
+                    <strong>Medium:</strong><br>
+                    <a href="https://medium.com/@corumyagmur" target="_blank" style='color:#bfdbfe;'>
+                        medium.com/@corumyagmur
+                    </a><br><br>
                     <strong>Platform Sürümü:</strong><br>
                     v2.0.0 (Build 2025.01)
                 </p>

@@ -34,8 +34,15 @@ Bu doküman `01_eda.ipynb` notebook'unun kısa özeti ve önemli bulguları içe
 - `NumberOfDependents`: ~%2.6 eksik (3,924 satır)
 
 **Strateji:**
-- `MonthlyIncome` eksikliği hem teknik hem davranışsal sinyal barındırıyor
-- Median imputation + missing flag yaklaşımı uygulanacak
+- `MonthlyIncome` eksikliği hem teknik hem davranışsal sinyal barındırıyor.
+- Eksik değer doldurma işlemi **EDA aşamasında yapılmamış**, 
+  **Data Cleaning** aşamasına bırakılmıştır.
+- Data Cleaning adımında `MonthlyIncome` ve `NumberOfDependents` için 
+  **median imputation** uygulanır (eksikler eğitim seti median’ı ile doldurulur).
+- İlk versiyonda ek bir missing flag üretilmemiştir; 
+  ilerleyen iterasyonlarda `MonthlyIncomeMissingFlag` gibi ek bir feature
+  oluşturmak, bu davranışsal sinyali modele taşımak için planlanan 
+  geliştirme olarak not edilmiştir.
 
 ## Hedef Değişken Dağılımı
 

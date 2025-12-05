@@ -489,6 +489,7 @@ credit-risk-model/
 │       ├── dashboard1.png
 │       ├── dashboard2.png
 │       ├── forceplot_customer_123.png
+│       ├── shap.png
 │       ├── low/
 │       │   ├── low.md
 │       │   ├── low1.png … low8.png
@@ -529,6 +530,7 @@ credit-risk-model/
 ├── Makefile
 ├── requirements.txt
 └── README.md
+
 ```
 
 ## Çalıştırma Adımları (Özet)

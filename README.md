@@ -92,10 +92,10 @@ Detaylı yazılı açıklamalar **`docs/`** klasöründedir:
 
 ## Doğrulama (Validation) Şeması
 
-### 80% Train – 20% Hold-out (Stratified Split)
+### 80% Train – 20% Validation (Stratified Split)
 
 - **Train set:** ≈ 120.000 gözlem  
-- **Hold-out (validation) set:** ≈ 30.000 gözlem  
+- **Validation set:** ≈ 30.000 gözlem  
 - Kullanılan split: `train_test_split(..., test_size=0.2, stratify=y, random_state=42)`
 
 ### Model Seçimi ve Raporlama
@@ -103,15 +103,15 @@ Detaylı yazılı açıklamalar **`docs/`** klasöründedir:
 - XGBoost için **3-fold Stratified K-Fold CV**, yalnızca **train set** üzerinde hyperparameter araması için kullanılmıştır.
 - En iyi parametre kombinasyonu seçildikten sonra:
   - Model yeniden **tüm train set** üzerinde eğitilmiş,
-  - Nihai performans **dokunulmamış 20% hold-out set** üzerinde raporlanmıştır.
+  - Nihai performans **dokunulmamış 20% validation set** üzerinde raporlanmıştır.
 
 **Neden bu şema?**
 
 - **Stratified:** Sınıf dengesizliği (%7 default) nedeniyle sınıf oranlarının korunması kritik.  
 - **Netlik:** Hyperparameter tuning ve son raporlama birbirinden ayrılmıştır.  
-- **Yeterli hold-out boyutu:** ≈30k gözlem, threshold tuning ve SHAP analizi için fazlasıyla yeterli.
+- **Yeterli validation boyutu:** ≈30k gözlem, threshold tuning ve SHAP analizi için fazlasıyla yeterli.
 
-Daha ileri bir iterasyonda, ek bir *gerçek test seti* veya zaman bazlı split kurgusu ile modelin zaman içindeki dayanıklılığı test edilebilir (bkz. `docs/evaluation.md`).
+Daha ileri bir iterasyonda, ek bir *bağımsız test seti* veya zaman bazlı split kurgusu ile modelin zaman içindeki dayanıklılığı test edilebilir (bkz. `docs/evaluation.md`).
 
 
 ## Feature Engineering Özeti
@@ -232,7 +232,7 @@ Seçilen en iyi kombinasyon, `src/config.py` içinde XGBoost için tanımlanan p
 
 ### Threshold Optimizasyonu
 
-- Hold-out set üzerinde 0.10–0.90 aralığında farklı threshold’lar denenmiştir.  
+- Validation set üzerinde 0.10–0.90 aralığında farklı threshold’lar denenmiştir.  
 - Hedef:
   - Teknik olarak **F1** skorunu maksimize etmek,  
   - İş tarafında ise makul **approval rate** ve düşük **bad rate in approved** elde etmek.
@@ -245,11 +245,11 @@ Bu değer `src/config.py` içinde:
 olarak tanımlanmıştır.
 
 
-## Nihai Performans (Hold-out Set)
+## Nihai Performans (Validation Set)
 
 `docs/evaluation.md` içinden özet:
 
-**Baseline vs Final (Hold-out):**
+**Baseline vs Final (Validation):**
 
 | Model                        | ROC-AUC  | Precision | Recall | F1-score |
 |----------------------------- |--------- |---------- |--------|--------- |
@@ -263,6 +263,9 @@ olarak tanımlanmıştır.
 - Precision yaklaşık **iki katına** çıkmıştır (≈ 0.22 → ≈ 0.42).  
 - Recall, daha yüksek precision ve daha düşük bad rate hedefi nedeniyle bir miktar düşmüş; bu bilinçli bir **iş kararı trade-off’u**dur.  
 - Approval rate, bad rate ve catch rate metrikleri bankacılık açısından makul bir denge sunmaktadır (ayrıntı için `docs/evaluation.md`).
+
+> Not: Tüm bu sonuçlar, 80/20 split’teki **20% validation set** üzerinde raporlanmıştır; bu versiyonda ayrı bir bağımsız test seti yoktur.
+
 
 ## Açıklanabilirlik (SHAP)
 
@@ -353,9 +356,9 @@ Arayüz, kurumsal bir kredi risk platformu görünümüyle tasarlanmıştır:
   - Model performans metriklerinin özeti (ROC-AUC, Precision, Recall, F1, optimal eşik)  
   - Sistem durumu (Model / API aktif mi?)
  
- ## Canlı Demo (Streamlit)
+## Canlı Demo (Streamlit)
 
- - Modelin Streamlit ile yayınlanmış versiyonuna aşağıdaki linkten ulaşabilirsiniz:
+- Modelin Streamlit ile yayınlanmış versiyonuna aşağıdaki linkten ulaşabilirsiniz:
 
 👉 [Kredi Risk Platformu – Canlı Demo](https://kredi-risk-platformu.streamlit.app/)
 
@@ -394,7 +397,7 @@ Bu arayüz üzerinden:
 
 **Başlatmak için:**
 
-- `streamlit run app/streamlit_app.py`
+- `streamlit run app/streamlit_app.py`  
 
 Dashboard kullanım rehberi, ekran görüntüleriyle birlikte `docs/dashboard_guide.md` dosyasında özetlenmiştir.
 
@@ -561,9 +564,10 @@ Dashboard’u hızlıca test etmek için `data/test_sample_raw.csv` dosyasını 
 ## Sınırlılıklar ve Gelecek Çalışmalar
 
 - Feature engineering istatistiklerinin (median, quantile vb.) sadece train set üzerinde fit edildiği tam bir sklearn pipeline’a taşınması.  
-- Zaman bazlı split / ek hold-out set ile farklı dönemler üzerinde dayanıklılığın test edilmesi.  
+- Zaman bazlı split ve/veya ayrı bir **bağımsız test seti** ile farklı dönemler üzerinde dayanıklılığın test edilmesi.  
 - Model kalibrasyonu ve skor kart (scorecard) formatına dönüştürme.  
 - Gerçek bir MLOps altyapısında (ör. MLflow + dashboard) monitoring planının hayata geçirilmesi.  
 - Streamlit arayüzünün daha kurumsal bir *kredi başvuru paneli*ne dönüştürülmesi (field-level validation, kullanıcı rolleri vb.).
 
 İyileştirme önerileri veya sorular için repo üzerinden issue açabilirsiniz.
+

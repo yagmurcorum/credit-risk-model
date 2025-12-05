@@ -453,19 +453,22 @@ gibi edge case senaryolarını test eder.
 
 ## 📁 Proje Yapısı
 
+Aşağıdaki yapı, repodaki son düzeni özetler:
+
+```
 credit-risk-model/
-│
 ├── app/
-│   ├── api.py                          # FastAPI – REST API (health + /predict)
-│   └── streamlit_app.py                # Streamlit UI (dashboard + batch scoring)
+│   ├── api.py                     # FastAPI – REST API (health + /predict)
+│   └── streamlit_app.py           # Streamlit UI (dashboard + batch scoring)
 │
 ├── data/
-│   ├── training_prepared.csv           # FE sonrası final eğitim seti
-│   ├── test_sample_raw.csv             # Dashboard hızlı test dosyası
+│   ├── training_prepared.csv      # FE sonrası final eğitim seti
+│   ├── test_sample_raw.csv        # Dashboard hızlı test dosyası
 │   ├── test_portfolio_low_risk.csv
 │   ├── test_portfolio_mixed.csv
 │   ├── test_portfolio_stressed.csv
-│   └── Data Dictionary.xls             # (lokalde, .gitignore'da) cs-training.csv, cs-test.csv, cs-training-clean.csv
+│   ├── Data Dictionary.xls
+│   └── (lokalde, .gitignore’da) cs-training.csv, cs-test.csv, cs-training-clean.csv
 │
 ├── docs/
 │   ├── business_context.md
@@ -483,13 +486,13 @@ credit-risk-model/
 │       ├── forceplot_customer_123.png
 │       ├── low/
 │       │   ├── low.md
-│       │   └── low1.png ... low8.png
+│       │   ├── low1.png … low8.png
 │       ├── mixed/
 │       │   ├── mixed.md
-│       │   └── mixed1.png ... mixed8.png
+│       │   ├── mixed1.png … mixed8.png
 │       └── stress/
 │           ├── stress.md
-│           └── stress1.png ... stress8.png
+│           ├── stress1.png … stress8.png
 │
 ├── models/
 │   └── xgboost_credit_risk_final.pkl
@@ -521,7 +524,7 @@ credit-risk-model/
 ├── Makefile
 ├── requirements.txt
 └── README.md
-
+```
 
 ## Çalıştırma Adımları (Özet)
 

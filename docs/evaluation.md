@@ -92,7 +92,9 @@ kurgulamak, metodolojik olarak bir adım daha ileri olacaktır.
 
 ### SHAP Analizi – Feature Importance
 
-SHAP (SHapley Additive Explanations) analizi ile modelin karar mekanizması hem global (feature importance) hem de lokal (tekil müşteri) düzeyde açıklanmıştır.
+SHAP (SHapley Additive Explanations) analizi ile modelin karar mekanizması global düzeyde (feature importance / beeswarm grafikleri) açıklanmıştır.
+Müşteri bazlı (lokal) SHAP incelemeleri ise `notebooks/05_xgboost.ipynb`içinde bırakılmış, bu dokümana ayrıca ekran görüntüsü alınmamıştır.
+
 
 <p align="center">
   <img src="cases/shap.png" alt="SHAP beeswarm feature importance" width="650">

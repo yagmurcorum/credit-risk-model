@@ -51,6 +51,7 @@ ile hem eğitim hem de inference tarafında kullanılmaktadır.
 - `EffectiveDebtLoad`
 - `RealEstateExposure`
 - `FinancialStressIndex`
+- `CreditLineDensity`
 
 **Adım 3.7: Feature Selection**
 - Ham delinquency kolonları çıkarıldı

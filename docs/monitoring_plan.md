@@ -2,6 +2,9 @@
 
 Model canlıya alındıktan sonra izlenecek metrikler ve alarm kuralları.
 
+> Not: Bu dokümandaki eşik değerler (PSI, latency, approval / bad rate aralıkları),
+> `src/config.py` içinde tanımlanan business kuralları ile tutarlı olacak şekilde seçilmiştir.
+
 ## Model Deployment Süreci
 
 ### 1. Model Paketleme

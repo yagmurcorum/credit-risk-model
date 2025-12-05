@@ -3,22 +3,26 @@
 Bu doküman, `03_feature_engineering.ipynb` notebook’unda yapılan feature engineering
 adımlarının özetini içerir.
 
-## Genel Yaklaşım
+Genel Yaklaşım
 
 Feature engineering aşamasında:
 
-- Temizlenmiş veri (`cs-training-clean.csv`) üzerinde çalışıldı.
-- Tüm dönüşümler veri setinin *tamamına* uygulandı.
-- Sonuçta oluşan final feature seti `training_prepared.csv` olarak kaydedildi.
+- Temizlenmiş veri (`cs-training-clean.csv`, 02_data_cleaning.ipynb çıktısı) üzerinde çalışıldı.
+- Tüm dönüşümler, train/validation ayrımı yapılmadan veri setinin tamamına uygulandı.
+- Sonuçta oluşan final feature seti, `training_prepared.csv` olarak kaydedildi ve model eğitiminde bu tablo kullanıldı.
 
-> **Not:** Bu projede median, quantile ve bin sınırları gibi istatistikler,
-> train/validation ayrımı yapılmadan, pratik sebeplerle **tüm veri üzerinde**
-> hesaplanmıştır. Bu, teorik olarak küçük bir data leakage anlamına gelir.
-> Ancak bu hesaplamalarda hedef değişken (`SeriousDlqin2yrs`) hiç
-> kullanılmadığı ve veri seti büyük olduğu için pratik etkisinin düşük
-> olduğu düşünülmektedir. İleriki iterasyonlarda bu istatistiklerin
-> yalnızca train set üzerinde fit edilmesi ve validation/test setlerine
-> aynı parametrelerin uygulanması planlanmaktadır.
+Not: Bu notebook’ta median, quantile ve bin sınırları gibi istatistikler (örneğin gelir bin’leri),
+pratik sebeplerle **tüm temizlenmiş veri** üzerinden hesaplanmıştır. Bu, teorik olarak küçük
+bir data leakage anlamına gelir. Ancak bu hesaplamalarda hedef değişken (`SeriousDlqin2yrs`)
+hiç kullanılmadığı ve veri seti büyük olduğu için pratik etkisinin düşük olduğu düşünülmektedir.
+
+Projenin bu versiyonunda performans, 80/20 train–validation bölünmesi ile raporlanmıştır ve
+ayrı bir bağımsız test seti yoktur. İleriki iterasyonlarda:
+
+- önce yalnızca **train set** üzerinde bu istatistiklerin fit edilmesi,
+- ardından aynı parametrelerin validation (ve varsa bağımsız test) setine uygulanması
+
+şeklinde daha sıkı bir yapı kurulması planlanmaktadır.
 
 ## 1. Delinquency (Gecikme) Feature’ları
 

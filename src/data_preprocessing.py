@@ -1,9 +1,18 @@
+# src/data_preprocessing.py
+
+"""
+Kredi risk modeli için veri hazırlama (temizlik + feature engineering + feature selection)
+adımlarını içerir.
+
+Bu dosya, eğitimde kullanılan final veri setini (training_prepared.csv) üretmek için
+kullanılan ana preprocessing akışını kod tarafında toplar.
+"""
+
 import numpy as np
 import pandas as pd
-
 from typing import List
-from src.config import DATA_DIR  
 
+from src.config import DATA_DIR
 
 TARGET_COL = "SeriousDlqin2yrs"
 
@@ -31,12 +40,15 @@ FINAL_DROP_COLS: List[str] = [
     "CreditLineDensity",
 ]
 
+
 # 1) TEMEL TEMİZLİK (Data Cleaning notebook ile uyumlu)
 def clean_basic(df: pd.DataFrame) -> pd.DataFrame:
     """
     02_data_cleaning.ipynb ile aynı mantığı kod tarafına taşır.
-    - Gereksiz ID kolonunu drop eder
-    - age == 0 hatasını düzeltir (median ile)
+
+    Yapılanlar:
+    - Gereksiz ID kolonunu (Unnamed: 0) drop eder
+    - age == 0 hatasını düzeltir (median ile doldurur)
     - MonthlyIncome ve NumberOfDependents eksiklerini median ile doldurur
     - Delinquency kolonlarındaki 98 gibi uç değerleri 10 seviyesinde sınırlar
     """
@@ -70,10 +82,13 @@ def clean_basic(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # 2) CORE NUMERIC FEATURES (log1p + ratio + basic flag)
-
 def add_core_numeric_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Blok 1: log1p dönüşümleri, basic ratio ve HighUtilizationFlag üretimi.
+    Çekirdek sayısal feature'ları üretir:
+
+    - log1p dönüşümleri (kuyrukları yumuşatmak için)
+    - DebtToIncomeRatio
+    - HighUtilizationFlag (kart limit aşımı)
     """
     df = df.copy()
 
@@ -104,10 +119,15 @@ def add_core_numeric_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # 3) DELINQUENCY FEATURES (flags + severity)
-
 def add_delinquency_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Blok 2 + Blok 5: delinquency toplamı, flag'ler ve ağırlıklı severity skoru.
+    Gecikme davranışı ile ilgili feature'ları üretir:
+
+    - TotalDelinquency
+    - EverDelinquent
+    - Ever90DaysLate
+    - MultipleDelinquencyFlag
+    - DelinquencySeverityScore (ağırlıklı skor)
     """
     df = df.copy()
 
@@ -129,8 +149,7 @@ def add_delinquency_features(df: pd.DataFrame) -> pd.DataFrame:
     # MultipleDelinquencyFlag: toplam gecikme sayısı >= 2 ise 1
     df["MultipleDelinquencyFlag"] = (df["TotalDelinquency"] >= 2).astype(int)
 
-    # DelinquencySeverityScore: ağırlıklı gecikme skoru
-    # 30–59: ×1, 60–89: ×2, 90+: ×3
+    # DelinquencySeverityScore: 30–59: ×1, 60–89: ×2, 90+: ×3
     df["DelinquencySeverityScore"] = (
         df.get("NumberOfTime30-59DaysPastDueNotWorse", 0) * 1
         + df.get("NumberOfTime60-89DaysPastDueNotWorse", 0) * 2
@@ -141,28 +160,28 @@ def add_delinquency_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # 4) RISK FLAGS (gelir / borç / delinquency davranış flag'leri)
-
 def add_risk_flags(df: pd.DataFrame) -> pd.DataFrame:
     """
-    HighDebtFlag gibi basit risk flag'lerini üretir.
-    Buradaki eşikler, EDA/FE sırasında gördüğümüz dağılıma göre seçildi.
+    Basit risk flag'lerini üretir (örn. HighDebtFlag).
+
+    Buradaki eşikler, EDA/FE sırasında görülen dağılımlara göre seçilmiştir.
     """
     df = df.copy()
 
     # HighDebtFlag: DebtToIncomeRatio üst segment
     if "DebtToIncomeRatio" in df.columns:
-        # Örn: en riskli ~%7-8'lik segment (üst quantile)
+        # Örneğin en riskli ~%7–8'lik segment (üst quantile)
         thr = df["DebtToIncomeRatio"].quantile(0.93)
         df["HighDebtFlag"] = (df["DebtToIncomeRatio"] >= thr).astype(int)
     else:
         df["HighDebtFlag"] = 0
 
-    # İstersen AgeRiskFlag vb. burada ekleyebilirsin
+    # İstersen AgeRiskFlag vb. başka flag'leri burada ekleyebilirsin
 
     return df
 
-# 5) BINNING / SEGMENTASYON
 
+# 5) BINNING / SEGMENTASYON
 def add_binning_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     AgeBin, IncomeBin, UtilizationBin, DelinqBin gibi segmentasyon feature'larını üretir.
@@ -208,12 +227,10 @@ def add_binning_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-
 # 6) INTERACTION FEATURES
-
 def add_interaction_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Blok 4: temel etkileşim feature'larını üretir.
+    Temel etkileşim feature'larını üretir (örneğin borç × kullanım, yaş × gelir vb.).
     """
     df = df.copy()
 
@@ -249,8 +266,12 @@ def add_interaction_features(df: pd.DataFrame) -> pd.DataFrame:
 # 7) DOMAIN-DRIVEN FEATURES
 def add_domain_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Blok 5: EffectiveDebtLoad, RealEstateExposure, FinancialStressIndex vb.
-    domain odaklı feature'ları üretir.
+    Domain odaklı feature'ları üretir:
+
+    - EffectiveDebtLoad
+    - CreditLineDensity
+    - RealEstateExposure
+    - FinancialStressIndex
     """
     df = df.copy()
 
@@ -279,25 +300,30 @@ def add_domain_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-
 # 8) FEATURE SELECTION (FINAL DROP UYGULAMA)
-
 def apply_feature_selection(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Blok 6 + 7: FINAL_DROP_COLS listesini kullanarak gereksiz kolonları çıkarır.
+    FINAL_DROP_COLS listesini kullanarak gereksiz kolonları çıkarır
+    ve modelde kullanılan final feature set'ini oluşturur.
     """
     df = df.copy()
     cols_to_keep = [c for c in df.columns if c not in FINAL_DROP_COLS]
     return df[cols_to_keep]
 
 
-
 # 9) ANA FONKSİYON: TRAINING İÇİN VERİ HAZIRLAMA
-
 def prepare_training(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Ham (veya kısmen işlenmiş) bir eğitim datasını alır,
-    tüm temizlik + FE + feature selection adımlarını uygular.
+    Ham (veya kısmen işlenmiş) bir eğitim datasını alır ve:
+
+    - Temel temizlik adımlarını uygular
+    - Çekirdek sayısal feature'ları üretir
+    - Delinquency + risk flag'lerini ekler
+    - Binning / segmentasyon adımlarını uygular
+    - Etkileşim ve domain tabanlı feature'ları ekler
+    - Feature selection ile final kolon setini oluşturur
+
+    Sonuç: training_prepared.csv ile aynı şemaya sahip DataFrame döner.
     """
     df = df.copy()
 
@@ -312,10 +338,10 @@ def prepare_training(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+
 if __name__ == "__main__":
     # Hızlı manuel test
-    import pandas as pd
-    from src.config import RAW_TRAIN, DATA_DIR
+    from src.config import RAW_TRAIN
 
     print("Ham veri okunuyor:", RAW_TRAIN)
     df_raw = pd.read_csv(RAW_TRAIN)

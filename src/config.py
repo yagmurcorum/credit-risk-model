@@ -1,3 +1,10 @@
+# src/config.py
+
+"""
+Proje genelinde kullanılan yol, dosya ve model konfigürasyonlarını içerir.
+Training, inference ve dashboard bileşenleri buradaki sabitleri paylaşır.
+"""
+
 from pathlib import Path
 
 # === Proje kök klasörü ===

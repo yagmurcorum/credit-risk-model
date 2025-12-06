@@ -1,35 +1,41 @@
 # src/predict.py
 
 """
-Bu modül, eğitilmiş final XGBoost modelini kullanarak
+Bu modül, eğitilmiş final XGBoost kredi risk modelini kullanarak
 DataFrame üzerinden tahmin almak için yardımcı fonksiyon sağlar.
 
-Final model:
+Final model dosyası:
     models/xgboost_credit_risk_final.pkl
 
-Yapısı:
+Model paketi yapısı:
     {
-        "model":    Pipeline veya estimator (xgb_best),
+        "model":    Pipeline veya estimator (XGBClassifier),
         "threshold": float (ör. 0.81),
         "features":  list[str] (isteğe bağlı – açıklama amaçlı)
     }
 """
 
 from typing import Tuple
+
 import joblib
 import numpy as np
 import pandas as pd
+
 from src.config import FINAL_MODEL
 
 
-def _load_artifact() -> dict:
+def _load_model_package() -> dict:
     """
-    Kaydedilmiş final modeli yükler.
-    Hata alırsan önce FINAL_MODEL yolunu ve dosyanın gerçekten var
-    olup olmadığını kontrol et.
+    Kaydedilmiş final model paketini yükler.
+
+    Hata alırsan:
+    - src.config içindeki FINAL_MODEL yolunu,
+    - İlgili .pkl dosyasının gerçekten var olup olmadığını
+
+    kontrol et.
     """
-    artifact = joblib.load(FINAL_MODEL)
-    return artifact
+    model_package = joblib.load(FINAL_MODEL)
+    return model_package
 
 
 def predict_from_df(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
@@ -37,14 +43,14 @@ def predict_from_df(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
     Girdi olarak verilen DataFrame üzerinden tahmin üretir.
 
     Beklenen:
-    - df, 03_feature_engineering + 02_cleaning sonrası oluşan
+    - df, 02_cleaning + 03_feature_engineering sonrası oluşan
       training_prepared.csv ile aynı feature kolonlarına sahip olmalı
       (SeriousDlqin2yrs kolonunun olması zorunlu değil).
 
     Adımlar:
     - Varsa hedef kolonu (SeriousDlqin2yrs) düşülür.
     - Final model dosyası içindeki model ile predict_proba çağrılır.
-    - threshold'a göre 0/1 tahmin üretilir.
+    - Kayıtlı threshold'a göre 0/1 tahmin üretilir.
 
     Dönen:
         y_pred  : (n,)  -> 0/1 tahminler
@@ -57,14 +63,14 @@ def predict_from_df(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
     if target_col in df_model.columns:
         df_model = df_model.drop(columns=[target_col])
 
-    artifact = _load_artifact()
-    model = artifact["model"]
-    threshold = artifact["threshold"]
+    model_package = _load_model_package()
+    model = model_package["model"]
+    threshold = model_package["threshold"]
 
-    # NOT:
-    # model zaten 05_xgboost.ipynb içinde ColumnTransformer + XGBoost
+    # Not:
+    # model, 05_xgboost.ipynb içinde ColumnTransformer + XGBoost
     # pipeline'ı olarak kaydedildiği için burada ekstra scaler / OHE
-    # vs. yapmamıza gerek yok; pipeline kendi içinde hallediyor.
+    # yapılmaz; tüm preprocessing pipeline içinde halledilir.
     y_proba = model.predict_proba(df_model)[:, 1]
     y_pred = (y_proba >= threshold).astype(int)
 

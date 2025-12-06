@@ -1,17 +1,19 @@
 # src/pipeline.py
 
 """
-Tüm ML akışının gerçekleştiği final akış scripti.
+Kredi risk modeli için eğitim ve tahmin pipeline'larını içeren script.
 
-Bu script bootcamp gereksinimlerine uygun olarak:
-- Training pipeline: Ham veriden model eğitimine kadar tüm süreç
-- Inference pipeline: Eğitilmiş model ile tahmin alma
+Bu dosya:
+- Training pipeline: Ham veriden model eğitimine kadar tüm süreci
+- Inference pipeline: Eğitilmiş model ile tahmin alma akışını
+
+komut satırından çalıştırmaya imkân verir.
 
 Kullanım:
     # Training
     python -m src.pipeline train
-    
-    # Inference
+
+    # Inference (hazır eğitim verisi üzerinden skor üretimi)
     python -m src.pipeline predict
 """
 
@@ -56,19 +58,19 @@ def train_pipeline(
     
     Adımlar:
     1. Ham veriyi yükle
-    2. Data cleaning + Feature engineering uygula
+    2. Data cleaning + feature engineering uygula
     3. Train/validation split
     4. Preprocessing pipeline oluştur (ColumnTransformer)
-    5. XGBoost modeli eğit (hyperparameter optimization ile)
-    6. Threshold optimization
-    7. Model kaydet
+    5. XGBoost modeli eğit (RandomizedSearchCV ile hiperparametre optimizasyonu)
+    6. Validation set üzerinde değerlendirme (ROC-AUC, precision, recall, F1)
+    7. Model paketini kaydet (model + threshold + feature isimleri)
     
     Args:
         input_path: Ham eğitim verisi yolu
         output_model_path: Model kayıt yolu
     
     Returns:
-        Model artifact dictionary
+        Eğitilmiş model, threshold ve feature isimlerini içeren sözlük
     """
     print("=" * 60)
     print("TRAINING PIPELINE BAŞLADI")

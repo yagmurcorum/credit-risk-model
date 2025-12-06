@@ -202,9 +202,8 @@ def apply_all_feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
     Tüm FE adımlarını sırasıyla uygulayan high-level fonksiyon.
 
     Not:
-    - Prediction tarafında şu anda training_prepared.csv zaten
-      FE sonrası olduğu için bu fonksiyon zorunlu değil; daha çok,
-      notebook'ta yaptığımız dönüşümlerin script formundaki özetidir.
+    - Eğitim pipeline'ında esas olarak src.data_preprocessing.prepare_training kullanılır.
+    - Bu fonksiyon, notebook'ta denenen FE adımlarının script formundaki özetidir.
     """
     df_fe = df.copy()
     df_fe = add_delinquency_features(df_fe)
@@ -213,3 +212,4 @@ def apply_all_feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
     df_fe = add_income_bins(df_fe)
 
     return df_fe
+

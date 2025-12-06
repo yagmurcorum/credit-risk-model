@@ -8,9 +8,13 @@ Notlar:
 - Asıl deneyler ve FE denemeleri 03_feature_engineering.ipynb içinde yapılmıştır.
 - Buradaki fonksiyonlar, o notebook'taki mantığı script formunda özetlemek için
   tasarlanmıştır.
+- Eğitim pipeline'ında resmi olarak `src.data_preprocessing.prepare_training`
+  kullanılmaktadır. Bu dosya, 03_feature_engineering.ipynb içindeki denemeleri
+  script formunda saklayan yardımcı (deneysel) bir modül olarak düşünülebilir.
 - İsimlendirmeler, training_prepared.csv ve dokümantasyon ile tutarlı olacak
   şekilde düzenlenmiştir.
 """
+
 
 from typing import Iterable
 import numpy as np

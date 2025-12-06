@@ -15,7 +15,6 @@ Notlar:
   şekilde düzenlenmiştir.
 """
 
-
 from typing import Iterable
 import numpy as np
 import pandas as pd

@@ -183,7 +183,10 @@ Tüm data cleaning + feature engineering adımları, `src/data_preprocessing.py`
 
 **Sonuç:**  
 
-- Final model; orijinal değişkenler, feature engineering çıktıları ve binning feature’larının birleştirilmesiyle oluşan **22 feature’lık** bir set üzerinde eğitilmiştir.  
+- Final model; orijinal değişkenler, feature engineering çıktıları ve binning feature’larının birleştirilmesiyle seçilmiş **26 feature’lık** bir set
+  (22 sayısal + 4 bin/kategorik) üzerinde eğitilmiştir.  
+- Teknik olarak `data/training_prepared.csv` dosyası analiz amaçlı birkaç ek kolon daha içerir; bu nedenle dosyada **34 feature + 1 hedef** bulunmaktadır.
+- Final XGBoost pipeline’ı bu 34 feature içinden yukarıda belirtilen **26 kolonu** aktif olarak kullanır.  
 - Bu final tablo `data/training_prepared.csv` dosyasında saklanır ve model eğitimi ile değerlendirme aşamalarında kullanılır.
 
 

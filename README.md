@@ -468,7 +468,7 @@ gibi edge case senaryolarını test eder.
 
 ## 📁 Proje Yapısı
 
-    ```
+```
 credit-risk-model/
 ├── app/
 │   ├── api.py                     # FastAPI – REST API (health + /predict)
@@ -539,8 +539,7 @@ credit-risk-model/
 ├── Makefile
 ├── requirements.txt
 └── README.md
-
-    ```  
+ ```  
 
 ## Çalıştırma Adımları (Özet)
 

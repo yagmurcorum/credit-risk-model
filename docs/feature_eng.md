@@ -233,22 +233,32 @@ Aşağıdaki feature’lar, korelasyon ve VIF analizi ile domain yorumu birleşt
 
 ## Final Feature Seti
 
-`training_prepared.csv` dosyasındaki nihai yapı:
+`training_prepared.csv` dosyasındaki **gerçek nihai yapı**:
 
-- **Toplam kolon sayısı:** 27  
-- **Hedef hariç feature sayısı:** 26  
+- **Toplam kolon sayısı (CSV):** 35  
+- **Hedef hariç feature sayısı (CSV):** 34  
+
+Bu 34 feature’nin içinde:
+
+- **Model tarafından aktif kullanılan feature sayısı:** 26  
   - **Sayısal feature sayısı:** 22  
   - **Kategorik feature sayısı (bin kolonları):** 4  
-    (`AgeBin`, `IncomeBin`, `UtilizationBin`, `DelinqBin`)  
-- **Hedef değişken:** `SeriousDlqin2yrs`
+    (`AgeBin`, `IncomeBin`, `UtilizationBin`, `DelinqBin`)
+    
+- **Model tarafından kullanılmayan ama CSV’de bırakılan 8 feature:**  
+  `NumberOfTime30-59DaysPastDueNotWorse`,  
+  `NumberOfTime60-89DaysPastDueNotWorse`,  
+  `NumberOfTimes90DaysLate`,  
+  `TotalDelinquency`,  
+  `DebtRatio`,  
+  `MonthlyIncome_log1p`,  
+  `Income_x_Age`,  
+  `CreditLineDensity`.  
 
-> Not: Baseline (Logistic Regression & Random Forest) modellerinde
-> **yalnızca 22 sayısal feature** kullanılmıştır.  
-> XGBoost tarafında ise **22 sayısal + 4 bin feature**
-> (`AgeBin`, `IncomeBin`, `UtilizationBin`, `DelinqBin`)
-> OneHotEncoder ile encode edilerek **full feature set** kullanılmıştır.  
-> Bin kolonları ayrıca analiz ve ileride uygulanabilecek farklı modelleme
-> stratejileri için de dosyada tutulmuştur.
+> Not: Bu 8 kolon, EDA / analiz ve ileride yapılabilecek daha agresif feature
+> selection denemeleri için **dosyada tutulmuştur**, ancak final XGBoost pipeline’ının
+> input listesine dahil edilmemiştir. Yani `training_prepared.csv` dosyasında
+> 34 feature görünse de, model eğitiminde **yalnızca 26 feature** kullanılmaktadır.
 
 ## Model Performansına Etkisi
 

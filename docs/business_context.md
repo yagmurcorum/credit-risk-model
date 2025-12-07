@@ -25,10 +25,12 @@ Müşterilerin önümüzdeki 2 yıl içinde ciddi finansal sıkıntı (serious d
 
 - **Satır sayısı:** ~150,000  
 - **Feature sayısı (ham veri):** 11 açıklayıcı değişken + 1 hedef = **12 kolon**  
-- **Final tablo:** Feature engineering sonrası, hedef dahil **27 kolon**  
-  (`data/training_prepared.csv` içinde saklanır; 26 feature + 1 hedef)  
-- *Class imbalance:* ~%7 default, ~%93 non-default  
-- **Format:** Tabular (CSV)
+- **Final tablo (`training_prepared.csv`):**  
+  - CSV bazında **35 kolon** (34 feature + 1 hedef)  
+  - Final XGBoost pipeline'ı bu 34 feature içinden **26 tanesini** (22 sayısal + 4 bin/kategorik) aktif olarak kullanır;
+  - kalan birkaç feature analiz / future-improvement amaçlı dosyada tutulmaktadır.  
+  - *Class imbalance:* ~%7 default, ~%93 non-default  
+  - **Format:** Tabular (CSV)
 
 **Dataset Özellikleri:**
 - Gerçek bankacılık verisinden türetilmiş, anonimleştirilmiş bir kredi portföyü

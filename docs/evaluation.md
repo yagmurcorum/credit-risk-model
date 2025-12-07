@@ -97,6 +97,28 @@ kurgulamak, metodolojik olarak bir adım daha ileri olacaktır.
 - Threshold tuning, precision–recall dengesini iş gereksinimlerine daha uygun hale getirdi.
 - Yanlış alarm oranı (false positive) azaldığı için operasyonel maliyetler düşme eğiliminde.
 
+### ROC Eğrisi ve AUC (Validation Seti)
+
+Final XGBoost modeli için, validation set üzerinde olasılık çıktıları kullanılarak ROC eğrisi çizilmiş ve AUC skoru hesaplanmıştır.
+
+ROC eğrisi, farklı karar eşikleri (threshold) için:
+
+- **False Positive Rate (FPR)** – Yanlış pozitif oranı  
+- **True Positive Rate (TPR / Recall)** – Doğru pozitif oranı  
+
+arasındaki ilişkiyi gösterir. Eğri ne kadar sol–üst köşeye yakınsa, modelin “iyi” ve “kötü” sınıfları ayırma gücü o kadar yüksektir.
+
+Validation set sonuçları:
+
+- **AUC ≈ 0.8699**
+
+Bu değer, modelin rastgele seçilen bir default müşterisini, rastgele seçilen bir iyi müşteriden **daha yüksek risk skoruna yerleştirme olasılığının yaklaşık %87** olduğu şeklinde yorumlanabilir. Sınıf dengesizliğine rağmen modelin ayrıştırma gücünün yüksek olması, threshold optimizasyonu ve decile analizi için sağlam bir temel sunmaktadır.
+
+<p align="center">
+  <img src="cases/roc.png" alt="Final XGBoost modeli için ROC eğrisi - Validation seti" width="450">
+</p>
+
+
 ### SHAP Analizi – Feature Importance
 
 SHAP (SHapley Additive Explanations) analizi ile modelin karar mekanizması global düzeyde (feature importance / beeswarm grafikleri) açıklanmıştır.

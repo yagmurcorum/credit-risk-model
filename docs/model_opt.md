@@ -15,8 +15,8 @@ Bu doküman `05_xgboost.ipynb` notebook'unda yapılan XGBoost model optimizasyon
 **ColumnTransformer yapısı:**
 - Sayısal değişkenler: `passthrough` (ölçeklendirme yapılmadı, XGBoost ağaç tabanlı olduğu için gerekmiyor).
 - Kategorik değişkenler: `OneHotEncoder(handle_unknown="ignore")`
-- 22 sayısal + 4 kategorik feature → encoding sonrası ~30 feature.
-
+- **22 sayısal + 4 kategorik feature → encoding sonrası toplam ≈38 feature.**
+- 
 **Class Imbalance Yönetimi:**
 - `scale_pos_weight = neg_count / pos_count ≈ 13.96`
 - Train set üzerinden hesaplandı (111,979 negatif / 8,021 pozitif).

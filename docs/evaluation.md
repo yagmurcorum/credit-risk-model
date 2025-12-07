@@ -73,11 +73,18 @@ kurgulamak, metodolojik olarak bir adım daha ileri olacaktır.
 | F1-score | 0.3450           | 0.4489                    | **+0.1039 (+~%30)** |
 
 **Final model özellikleri:**
-- 22 sayısal + 4 kategorik feature (XGBoost pipeline girişi – toplam 26 kolon)
-- ColumnTransformer + OneHotEncoder sonrası modelin gördüğü toplam 38 feature
+- **Model input’u:** 22 sayısal + 4 kategorik feature  
+  (XGBoost pipeline girişi – toplam **26 kolon**)  
+- ColumnTransformer + OneHotEncoder sonrası modelin gördüğü toplam feature sayısı: **≈38**  
 - Hyperparameter optimization (RandomizedSearchCV, 3-fold Stratified CV)
 - Optimal threshold tuning (0.81)
 - SHAP ile açıklanabilirlik (global + bireysel seviye) 
+
+> **Not:** Feature engineering pipeline’ı, `training_prepared.csv` dosyasına modelin aktif
+> olarak kullanmadığı birkaç ek kolon (özellikle bazı ham delinquency ve deneysel
+> interaction feature’ları) yazmaya devam etmektedir. Bu nedenle CSV içinde
+> **34 feature** görünür; ancak XGBoost pipeline'ı config’te tanımlanan
+> **26 feature listesi** ile eğitilmiştir.
 
 **Başarı farkı:**
 - **ROC-AUC:** Baseline XGBoost’a göre küçük ama anlamlı bir iyileşme (0.8685 → 0.8699).

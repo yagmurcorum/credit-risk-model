@@ -99,51 +99,59 @@ Inference tarafında iki seviyeli yapı kullanılır:
 
 ## Final Feature Seti
 
-**Final tablo:**  
-- Satır sayısı: 150,000  
-- Kolon sayısı: 27 (26 feature + 1 hedef)
+**Final tablo (`training_prepared.csv`):**  
+- Satır sayısı: ~150,000  
+- **Kolon sayısı (CSV): 35** → 34 feature + 1 hedef (`SeriousDlqin2yrs`)  
 
-**Toplam feature sayısı:** 26 (hedef hariç)
+**Modelin aktif kullandığı feature seti:**  
+- **Toplam feature sayısı:** 26 (hedef hariç)  
+  - **Sayısal feature'lar (22 adet):**
+    - Orijinal:
+      - `RevolvingUtilizationOfUnsecuredLines`
+      - `age`
+      - `MonthlyIncome`
+      - `NumberOfOpenCreditLinesAndLoans`
+      - `NumberRealEstateLoansOrLines`
+      - `NumberOfDependents`
+    - Delinquency türevleri:
+      - `EverDelinquent`
+      - `Ever90DaysLate`
+      - `MultipleDelinquencyFlag`
+      - `DelinquencySeverityScore`
+    - Risk flag'leri:
+      - `HighUtilizationFlag`
+      - `HighDebtFlag`
+    - Log / oran:
+      - `RevolvingUtilizationOfUnsecuredLines_log1p`
+      - `DebtRatio_log1p`
+      - `DebtToIncomeRatio`
+    - Interaction:
+      - `Utilization_x_DebtRatio`
+      - `Delinq_x_Utilization`
+      - `OpenLines_x_RealEstate`
+      - `HighUtil_x_DebtRatio`
+    - Domain:
+      - `EffectiveDebtLoad`
+      - `RealEstateExposure`
+      - `FinancialStressIndex`
+  - **Kategorik feature'lar (4 adet):**
+    - `AgeBin`
+    - `IncomeBin`
+    - `UtilizationBin`
+    - `DelinqBin`
 
-**Sayısal feature'lar (22 adet):**
-- Orijinal:
-  - `RevolvingUtilizationOfUnsecuredLines`
-  - `age`
-  - `MonthlyIncome`
-  - `NumberOfOpenCreditLinesAndLoans`
-  - `NumberRealEstateLoansOrLines`
-  - `NumberOfDependents`
-- Delinquency türevleri:
-  - `EverDelinquent`
-  - `Ever90DaysLate`
-  - `MultipleDelinquencyFlag`
-  - `DelinquencySeverityScore`
-- Risk flag'leri:
-  - `HighUtilizationFlag`
-  - `HighDebtFlag`
-- Log dönüşümleri:
-  - `RevolvingUtilizationOfUnsecuredLines_log1p`
-  - `DebtRatio_log1p`
-- Ratio:
-  - `DebtToIncomeRatio`
-- Interaction:
-  - `Utilization_x_DebtRatio`
-  - `Delinq_x_Utilization`
-  - `OpenLines_x_RealEstate`
-  - `HighUtil_x_DebtRatio`
-- Domain:
-  - `EffectiveDebtLoad`
-  - `RealEstateExposure`
-  - `FinancialStressIndex`
-
-**Kategorik feature'lar (4 adet):**
-- `AgeBin`
-- `IncomeBin`
-- `UtilizationBin`
-- `DelinqBin`
+**CSV’de olup modelin kullanmadığı ama analiz için saklanan feature’lar:**  
+`NumberOfTime30-59DaysPastDueNotWorse`,  
+`NumberOfTime60-89DaysPastDueNotWorse`,  
+`NumberOfTimes90DaysLate`,  
+`TotalDelinquency`,  
+`DebtRatio`,  
+`MonthlyIncome_log1p`,  
+`Income_x_Age`,  
+`CreditLineDensity`.
 
 **Encoding sonrası:**  
-OneHotEncoder ile kategorik feature'lar genişletilir; toplam feature sayısı ~30 civarına çıkar.
+OneHotEncoder ile kategorik feature'lar genişletilir; toplam feature sayısı **≈38** civarına çıkar (22 sayısal + 4 bin × 4 kategori).
 
 ## Ön İşleme Stratejisi
 

@@ -24,6 +24,7 @@ Bankacılık tarafında bu metrik, pratikte *default riski için güçlü bir te
 
 Bu nedenle model sadece teknik metriklere (ROC-AUC vb.) göre değil, **iş gereksinimlerine göre** de değerlendirilmiştir.
 
+
 ## Veri Seti
 
 - **Kaynak:** Give Me Some Credit – Kaggle Yarışması  
@@ -39,7 +40,8 @@ Bu nedenle model sadece teknik metriklere (ROC-AUC vb.) göre değil, **iş gere
 - `RevolvingUtilizationOfUnsecuredLines` – Limit kullanım oranı  
 - `age` – Müşteri yaşı  
 - `MonthlyIncome` – Aylık gelir  
-- `NumberOfTime30-59DaysPastDueNotWorse` – 30–59 gün gecikme sayısı  
+- `NumberOfTime30-59DaysPastDueNotWorse` – 30–59 gün gecikme sayısı
+- `NumberOfTime60-89DaysPastDueNotWorse` – 60–89 gün gecikme sayısı  
 - `NumberOfTimes90DaysLate` – 90+ gün gecikme sayısı  
 - `DebtRatio` – Toplam borç / gelir oranı  
 - `NumberOfOpenCreditLinesAndLoans` – Açık kredi hattı sayısı  
@@ -48,7 +50,7 @@ Bu nedenle model sadece teknik metriklere (ROC-AUC vb.) göre değil, **iş gere
 
 **Veri sözlüğü:** `data/Data Dictionary.xls` dosyasında bulunmaktadır.  
 
-Ham Kaggle dosyaları (`cs-training.csv`, `cs-test.csv`, `cs-training-clean.csv`) **lokalde `data/` altında** beklenir.
+Ham Kaggle dosyaları (`cs-training.csv`, `cs-test.csv`, `cs-training-clean.csv`) **lokalde `data/` altında** beklenir ve `.gitignore` altında tutulur.
 
 ## Genel Yaklaşım ve Akış
 
@@ -73,8 +75,8 @@ Proje aşağıdaki adımlarla ilerler:
    Ham veriden final metriklere tek notebook’ta uçtan uca akış özeti.
 
 7. **Deployment (`src/` + `app/`)**  
-   - `src/` : Modeli eğiten ve tahmin üreten tüm core pipeline kodlarını içerir
-   - `app/` : Deployment katmanı. FastAPI ve Streamlit burada ve tahmin için src.inference / src.predict içindeki fonksiyonları çağırıyor.
+   - `src/` : Modeli eğiten ve tahmin üreten tüm core pipeline kodlarını içerir.  
+   - `app/` : Deployment katmanı. FastAPI ve Streamlit burada ve tahmin için `src.inference` / `src.predict` içindeki fonksiyonları çağırır.
 
 Detaylı yazılı açıklamalar **`docs/`** klasöründedir:
 
@@ -113,7 +115,6 @@ Detaylı yazılı açıklamalar **`docs/`** klasöründedir:
 
 Daha ileri bir iterasyonda, ek bir *bağımsız test seti* veya zaman bazlı split kurgusu ile modelin zaman içindeki dayanıklılığı test edilebilir (bkz. `docs/evaluation.md`).
 
-
 ## Feature Engineering Özeti
 
 Tüm data cleaning + feature engineering adımları, `src/data_preprocessing.py` dosyasındaki fonksiyonların `prepare_training` pipeline’ı içinde sıralı olarak çalıştırılmasıyla uygulanır.
@@ -147,7 +148,7 @@ Tüm data cleaning + feature engineering adımları, `src/data_preprocessing.py`
 Örneğin:
 
 - `HighDebtFlag` → yüksek borç yükünü işaretler (`DebtToIncomeRatio` üst quantile’ında ise 1)  
-- `HighUtilAndDelinqFlag` → hem yüksek utilization hem delinquency olan müşterileri yakalar.
+- Gerekirse ek yaş/gelir flag’leri eklenebilecek şekilde tasarlanmıştır.
 
 ### 5. Binning / Segmentasyon (`add_binning_features`)
 
@@ -164,7 +165,7 @@ Tüm data cleaning + feature engineering adımları, `src/data_preprocessing.py`
 - `OpenLines_x_RealEstate`  
 - `HighUtil_x_DebtRatio`  
 
-(Bazı zayıf / komplike etkileşimler ileride sadeleştirme amacıyla **“future improvement”** olarak bırakılmıştır.)
+(Bazı zayıf  etkileşimler ileride sadeleştirme amacıyla **“future improvement”** olarak bırakılmıştır.)
 
 ### 7. Domain-Driven Feature’lar (`add_domain_features`)
 
@@ -175,15 +176,16 @@ Tüm data cleaning + feature engineering adımları, `src/data_preprocessing.py`
 
 ### 8. Feature Selection (`apply_feature_selection`)
 
-  - Yüksek korelasyonlu / redundant veya çok zayıf sinyal üreten bazı kolonlar düşürülür:
+- Yüksek korelasyonlu / redundant veya çok zayıf sinyal üreten bazı kolonlar düşürülür:
   - Ham delinquency kolonları (yerine `DelinquencySeverityScore` tutulur)  
   - Bazı etkileşimler  
   - Bazı log dönüşümler vb.
 
 **Sonuç:**  
 
-- Final model; orijinal değişkenler, feature engineering çıktıları ve binning feature’larının birleştirilmesiyle oluşan **22 feature’lık** bir set üzerinde eğitilmiştir.
+- Final model; orijinal değişkenler, feature engineering çıktıları ve binning feature’larının birleştirilmesiyle oluşan **22 feature’lık** bir set üzerinde eğitilmiştir.  
 - Bu final tablo `data/training_prepared.csv` dosyasında saklanır ve model eğitimi ile değerlendirme aşamalarında kullanılır.
+
 
 ## Baseline Modeller
 
@@ -251,11 +253,11 @@ olarak tanımlanmıştır.
 
 **Baseline vs Final (Validation):**
 
-| Model                        | ROC-AUC  | Precision | Recall | F1-score |
-|----------------------------- |--------- |---------- |--------|--------- |
-| Logistic Regression          | 0.8622   | 0.2293    | 0.7456 | 0.3508   |
-| Random Forest                | 0.8501   | 0.4836    | 0.3017 | 0.3716   |
-| XGBoost (Final, th = 0.81)   | 0.8699   | 0.4225    | 0.4788 | 0.4489   |
+| Model                      | ROC-AUC | Precision | Recall  | F1-score |
+|--------------------------- |-------- |---------- |-------- |--------- |
+| Logistic Regression        | 0.8622  | 0.2293    | 0.7456  | 0.3508   |
+| Random Forest              | 0.8501  | 0.4836    | 0.3017  | 0.3716   |
+| XGBoost (Final, th = 0.81) | 0.8699  | 0.4225    | 0.4788  | 0.4489   |
 
 **Öne çıkan noktalar:**
 
@@ -290,28 +292,28 @@ SHAP analizi `notebooks/05_xgboost.ipynb` ve `docs/evaluation.md` içinde detayl
 - Domain tabanlı feature’lar (`EffectiveDebtLoad`, `FinancialStressIndex` vb.) modelin riskli segmentleri daha keskin ayırt etmesine yardımcı olur.  
 - SHAP grafikleri, risk komiteleri ve regülasyon tarafı için **“neden bu müşteri riskli görüldü?”** sorusuna yanıt verecek seviyede açıklanabilirlik sunar.
 
-
 ## Kod ve Pipeline Yapısı
 
 ### `src/` klasörü
 
 - **`config.py`**  
-  - Proje path’leri (`DATA_DIR`, `MODELS_DIR` vb.)  
+  - Proje path’leri (`DATA_DIR`, `MODELS_DIR` vb.).  
   - İş kuralları: `DEFAULT_THRESHOLD`, minimum precision/recall, hedef approval aralığı vb.  
   - XGBoost parametreleri (`SCALE_POS_WEIGHT`, varsayılan param sözlükleri).
 
 - **`data_preprocessing.py`**  
   - Ana temizlik + feature engineering pipeline’ının kod karşılığıdır.  
   - `prepare_training(df)` fonksiyonu, ham Kaggle formatındaki veriyi alır, tüm cleaning ve feature engineering adımlarını uygular ve `data/training_prepared.csv`
-     dosyası ile aynı şemaya sahip final feature tablosunu üretir.
+    dosyası ile aynı şemaya sahip final feature tablosunu üretir.
 
 - **`feature_engineering.py`**  
   - Notebooklarda denenen alternatif / parçalı FE fonksiyonlarını içerir.  
-  - Asıl eğitim pipeline’ı **`src/data_preprocessing.py` içindeki `prepare_training`** üzerinden çalışır; `feature_engineering.py` daha çok referans ve gelecekteki iyileştirmeler için tutulmuştur
+  - Asıl eğitim pipeline’ı **`src/data_preprocessing.py` içindeki `prepare_training`** fonksiyonu üzerinden çalışır.  
+  - Temizlik ve feature engineering adımlarının resmi versiyonu `src/data_preprocessing.py` içindeki `prepare_training` fonksiyonunda orkestra edilmiştir. `src/feature_engineering.py` ise `03_feature_engineering.ipynb` içinde denenen FE fikirlerinin script formatında saklandığı yardımcı bir modül olarak bırakılmıştır.
 
 - **`predict.py`**  
   - `predict_from_df(df)`:
-    - `models/xgboost_credit_risk_final.pkl` modelini yükler,  
+    - `models/xgboost_credit_risk_final.pkl` model paketini yükler,  
     - Threshold uygulayarak `y_pred` (0/1) ve `y_proba` döndürür.  
   - Girdi: FE sonrası hazır feature setine sahip DataFrame.
 
@@ -353,19 +355,21 @@ Arayüz, kurumsal bir kredi risk platformu görünümüyle tasarlanmıştır:
 - Üstte **“Kredi Risk Değerlendirme Platformu”** başlığı ve kısa iş açıklaması  
 - Solda **sidebar**:
   - Karar eşiği (`threshold`) slider’ı  
-  - Düşük / Yüksek risk tanımı  
+  - Düşük / yüksek risk tanımı  
   - Model performans metriklerinin özeti (ROC-AUC, Precision, Recall, F1, optimal eşik)  
   - Sistem durumu (Model / API aktif mi?)
- 
+
+
 ## Canlı Demo (Streamlit)
 
 - Modelin Streamlit ile yayınlanmış versiyonuna aşağıdaki linkten ulaşabilirsiniz:
 
-👉 [Kredi Risk Platformu – Canlı Demo](https://kredi-risk-platformu.streamlit.app/)
+👉 **Kredi Risk Platformu – Canlı Demo:** https://kredi-risk-platformu.streamlit.app/
 
 Bu arayüz üzerinden:
-- Örnek veya kendi kredi başvuru portföyünüzü CSV olarak yükleyebilir,
-- Her bir müşteri için default olasılığını ve risk segmentini görebilir,
+
+- Örnek veya kendi kredi başvuru portföyünüzü CSV olarak yükleyebilir,  
+- Her bir müşteri için default olasılığını ve risk segmentini görebilir,  
 - Risk dağılımı histogramı, segmentasyon donut grafiği ve yaş–gelir balon grafiği ile portföy risk profilini inceleyebilirsiniz.
 
 ### Dashboard Önizleme
@@ -406,6 +410,7 @@ Detaylı kullanım adımları, ek ekran görüntüleri ve senaryo örnekleri iç
 
 Dashboard kullanım rehberi, ekran görüntüleriyle birlikte `docs/dashboard_guide.md` dosyasında özetlenmiştir.
 
+
 ## Senaryo Portföyleri ve Case Dokümanları
 
 Dashboard’un gerçekçi portföyler altında nasıl davrandığını göstermek için üç farklı test portföyü üretilmiştir:
@@ -431,7 +436,6 @@ Bu dokümanlarda:
 
 ilgili ekran görüntüleri (`low1.png`–`low8.png`, `mixed1.png`–`mixed8.png`, `stress1.png`–`stress8.png`) ile birlikte sunulmuştur.
 
-
 ## Testler
 
 `tests/` klasörü:
@@ -449,89 +453,90 @@ gibi edge case senaryolarını test eder.
 
 - **`generate_test_portfolios.py`**  
   - Ham eğitim verisinden model skoru üretip,  
-  - Low / Mixed / Stressed portföy CSV’lerini (`test_portfolio_*.csv`) oluşturan tek seferlik yardımcı script.
+  - Low / Mixed / Stressed portföy CSV’lerini (`test_portfolio_*.csv`) oluşturan tek seferlik yardımcı script.  
+  - Bu script bir pytest testi değil; sadece case çalışmaları için veri üretmek amacıyla tutulmuştur.
 
 **Testleri çalıştırmak için:**
 
-- `python -m pytest -q`
+- `python -m pytest -q`  
+
+> Not: Testlerin başarılı çalışabilmesi için `data/training_prepared.csv` ve `models/xgboost_credit_risk_final.pkl` dosyalarının yerinde olması gerekir. Ham Kaggle dosyaları (`cs-training.csv` vb.) `.gitignore` altında olup lokal ortamda beklenir.
 
 
 ## 📁 Proje Yapısı
 
-Aşağıdaki yapı, repodaki son düzeni özetler:
+    ```
 
-```
-credit-risk-model/
-├── app/
-│   ├── api.py                     # FastAPI – REST API (health + /predict)
-│   └── streamlit_app.py           # Streamlit UI (dashboard + batch scoring)
-│
-├── data/
-│   ├── training_prepared.csv      # FE sonrası final eğitim seti
-│   ├── test_sample_raw.csv        # Dashboard hızlı test dosyası
-│   ├── test_portfolio_low_risk.csv
-│   ├── test_portfolio_mixed.csv
-│   ├── test_portfolio_stressed.csv
-│   ├── Data Dictionary.xls
-│   └── (lokalde, .gitignore’da) cs-training.csv, cs-test.csv, cs-training-clean.csv
-│
-├── docs/
-│   ├── business_context.md
-│   ├── eda.md
-│   ├── baseline.md
-│   ├── feature_eng.md
-│   ├── model_opt.md
-│   ├── evaluation.md
-│   ├── pipeline.md
-│   ├── monitoring_plan.md
-│   ├── dashboard_guide.md
-│   └── cases/
-│       ├── dashboard1.png
-│       ├── dashboard2.png
-│       ├── forceplot_customer_123.png
-│       ├── shap.png
-│       ├── low/
-│       │   ├── low.md
-│       │   ├── low1.png … low8.png
-│       ├── mixed/
-│       │   ├── mixed.md
-│       │   ├── mixed1.png … mixed8.png
-│       └── stress/
-│           ├── stress.md
-│           ├── stress1.png … stress8.png
-│
-├── models/
-│   └── xgboost_credit_risk_final.pkl
-│
-├── notebooks/
-│   ├── 01_eda.ipynb
-│   ├── 02_data_cleaning.ipynb
-│   ├── 03_feature_engineering.ipynb
-│   ├── 04_baseline.ipynb
-│   ├── 05_xgboost.ipynb
-│   └── 06_final_pipeline.ipynb
-│
-├── src/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── data_preprocessing.py
-│   ├── feature_engineering.py
-│   ├── pipeline.py
-│   ├── predict.py
-│   └── inference.py
-│
-├── tests/
-│   ├── test_sample.py
-│   ├── test_edge_inputs.py
-│   └── generate_test_portfolios.py
-│
-├── .gitignore
-├── LICENSE
-├── Makefile
-├── requirements.txt
-└── README.md
-
-```
+    credit-risk-model/
+    ├── app/
+    │   ├── api.py                     # FastAPI – REST API (health + /predict)
+    │   └── streamlit_app.py           # Streamlit UI (dashboard + batch scoring)
+    │
+    ├── data/
+    │   ├── training_prepared.csv      # FE sonrası final eğitim seti
+    │   ├── test_sample_raw.csv        # Dashboard hızlı test dosyası
+    │   ├── test_portfolio_low_risk.csv
+    │   ├── test_portfolio_mixed.csv
+    │   ├── test_portfolio_stressed.csv
+    │   ├── Data Dictionary.xls
+    │   └── (lokalde, .gitignore’da) cs-training.csv, cs-test.csv, cs-training-clean.csv
+    │
+    ├── docs/
+    │   ├── business_context.md
+    │   ├── eda.md
+    │   ├── baseline.md
+    │   ├── feature_eng.md
+    │   ├── model_opt.md
+    │   ├── evaluation.md
+    │   ├── pipeline.md
+    │   ├── monitoring_plan.md
+    │   ├── dashboard_guide.md
+    │   └── cases/
+    │       ├── dashbboard1.png
+    │       ├── dashboard2.png
+    │       ├── forceplot_customer_123.png
+    │       ├── shap.png
+    │       ├── low/
+    │       │   ├── low.md
+    │       │   ├── low1.png … low8.png
+    │       ├── mixed/
+    │       │   ├── mixed.md
+    │       │   ├── mixed1.png … mixed8.png
+    │       └── stress/
+    │           ├── stress.md
+    │           ├── stress1.png … stress8.png
+    │
+    ├── models/
+    │   └── xgboost_credit_risk_final.pkl
+    │
+    ├── notebooks/
+    │   ├── 01_eda.ipynb
+    │   ├── 02_data_cleaning.ipynb
+    │   ├── 03_feature_engineering.ipynb
+    │   ├── 04_baseline.ipynb
+    │   ├── 05_xgboost.ipynb
+    │   └── 06_final_pipeline.ipynb
+    │
+    ├── src/
+    │   ├── __init__.py
+    │   ├── config.py
+    │   ├── data_preprocessing.py
+    │   ├── feature_engineering.py
+    │   ├── pipeline.py
+    │   ├── predict.py
+    │   └── inference.py
+    │
+    ├── tests/
+    │   ├── test_sample.py
+    │   ├── test_edge_inputs.py
+    │   └── generate_test_portfolios.py
+    │
+    ├── .gitignore
+    ├── LICENSE
+    ├── Makefile
+    ├── requirements.txt
+    └── README.md
+    ```  
 
 ## Çalıştırma Adımları (Özet)
 
@@ -561,7 +566,7 @@ ile varsayılan batch prediction akışını çalıştırabilirsiniz.
 
 - `uvicorn app.api:app --reload`  
 - Tarayıcıdan: `http://127.0.0.1:8000/docs`  
-  üzerinden swagger arayüzüne erişebilirsiniz.
+  üzerinden Swagger arayüzüne erişebilirsiniz.
 
 ### 5. Streamlit Dashboard
 
@@ -579,4 +584,11 @@ Dashboard’u hızlıca test etmek için `data/test_sample_raw.csv` dosyasını 
 - Streamlit arayüzünün daha kurumsal bir *kredi başvuru paneli*ne dönüştürülmesi (field-level validation, kullanıcı rolleri vb.).
 
 İyileştirme önerileri veya sorular için repo üzerinden issue açabilirsiniz.
+
+
+## İletişim
+
+- 📧 **E-posta:** corumyagmuur@gmail.com  
+- 💼 **LinkedIn:** https://www.linkedin.com/in/yagmurcorum  
+- ✍️ **Medium:** https://medium.com/@corumyagmur
 
